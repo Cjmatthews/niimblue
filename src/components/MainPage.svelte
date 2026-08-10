@@ -80,7 +80,4 @@
   .blue {
     color: #0b7eff;
   }
-
-  .footer {
-  }
 </style>

@@ -27,7 +27,7 @@
 
       pdfjsLib.GlobalWorkerOptions.workerSrc = new URL("pdfjs-dist/legacy/build/pdf.worker.mjs", import.meta.url).href;
 
-      const loadingTask = pdfjsLib.getDocument(url);
+      const loadingTask = pdfjsLib.getDocument({ url });
       const pdf = await loadingTask.promise;
       const page = await pdf.getPage(1);
 
