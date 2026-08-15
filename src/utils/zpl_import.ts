@@ -4,6 +4,8 @@ import { Barcode, type BarcodeCoding } from "$/fabric-object/barcode";
 import { QRCode, type ErrorCorrectionLevel } from "$/fabric-object/qrcode";
 import { TextboxExt } from "$/fabric-object/textbox-ext";
 
+export type ZplTone = "black" | "white";
+
 export type ZplObjectSpec =
   | {
       kind: "text";
@@ -14,6 +16,7 @@ export type ZplObjectSpec =
       angle: number;
       width?: number;
       originY: fabric.TOriginY;
+      fill: ZplTone;
     }
   | {
       kind: "rect";
@@ -25,6 +28,7 @@ export type ZplObjectSpec =
       filled: boolean;
       rx: number;
       angle: number;
+      tone: ZplTone;
     }
   | {
       kind: "circle";
@@ -33,6 +37,7 @@ export type ZplObjectSpec =
       radius: number;
       strokeWidth: number;
       filled: boolean;
+      tone: ZplTone;
     }
   | {
       kind: "barcode";
@@ -75,10 +80,32 @@ const angleFromOrientation = (o: Orientation): number => {
   return 0;
 };
 
+const parseTone = (value: string | undefined): ZplTone =>
+  value?.trim().toUpperCase() === "W" ? "white" : "black";
+
+const flipTone = (tone: ZplTone): ZplTone => (tone === "white" ? "black" : "white");
+
 const parseNumber = (value: string | undefined, fallback = 0): number => {
   if (value === undefined || value === "") return fallback;
   const n = Number.parseFloat(value);
   return Number.isFinite(n) ? n : fallback;
+};
+
+const applyContrastHeuristic = (objects: ZplObjectSpec[]) => {
+  const darkRects = objects.filter(
+    (obj): obj is Extract<ZplObjectSpec, { kind: "rect" }> => obj.kind === "rect" && obj.filled && obj.tone === "black",
+  );
+
+  for (const obj of objects) {
+    if (obj.kind !== "text" || obj.fill === "white") continue;
+    const width = obj.width && obj.width > 0 ? obj.width : Math.max(obj.fontSize, obj.text.length * obj.fontSize * 0.5);
+    const cx = obj.left + width / 2;
+    const cy = obj.top + obj.fontSize / 2;
+    const onDark = darkRects.some(
+      (rect) => cx >= rect.left && cx <= rect.left + rect.width && cy >= rect.top && cy <= rect.top + rect.height,
+    );
+    if (onDark) obj.fill = "white";
+  }
 };
 
 const parseParams = (args: string): string[] => args.split(",").map((part) => part.trim());
@@ -203,9 +230,10 @@ export const parseZpl = (zpl: string): ZplParseResult => {
   let pendingBarcodeOrientation: Orientation = "N";
   let pendingQrMag = 4;
   let pendingQrOrientation: Orientation = "N";
-  let pendingBox: { width: number; height: number; thickness: number; rounding: number } | undefined;
-  let pendingCircle: { diameter: number; thickness: number } | undefined;
+  let pendingBox: { width: number; height: number; thickness: number; rounding: number; tone: ZplTone } | undefined;
+  let pendingCircle: { diameter: number; thickness: number; tone: ZplTone } | undefined;
   let pendingData = "";
+  let pendingReverse = false;
   let skipped = new Set<string>();
 
   const resetField = () => {
@@ -215,6 +243,7 @@ export const parseZpl = (zpl: string): ZplParseResult => {
     pendingCircle = undefined;
     fieldWidth = undefined;
     originY = "top";
+    pendingReverse = false;
   };
 
   const emitField = () => {
@@ -223,7 +252,7 @@ export const parseZpl = (zpl: string): ZplParseResult => {
     const angle = angleFromOrientation(pendingKind === "barcode" || pendingKind === "ean13" ? pendingBarcodeOrientation : pendingKind === "qrcode" ? pendingQrOrientation : orientation);
 
     if (pendingKind === "box" && pendingBox) {
-      const { width, height, thickness, rounding } = pendingBox;
+      const { width, height, thickness, rounding, tone } = pendingBox;
       if (width > 0 && height > 0) {
         objects.push({
           kind: "rect",
@@ -235,6 +264,7 @@ export const parseZpl = (zpl: string): ZplParseResult => {
           filled: thickness >= Math.min(width, height) / 2,
           rx: rounding,
           angle: angleFromOrientation(orientation),
+          tone: pendingReverse ? flipTone(tone) : tone,
         });
       }
       resetField();
@@ -251,6 +281,7 @@ export const parseZpl = (zpl: string): ZplParseResult => {
           radius,
           strokeWidth: Math.max(1, pendingCircle.thickness),
           filled: pendingCircle.thickness >= radius,
+          tone: pendingReverse ? flipTone(pendingCircle.tone) : pendingCircle.tone,
         });
       }
       resetField();
@@ -307,6 +338,7 @@ export const parseZpl = (zpl: string): ZplParseResult => {
       angle: angleFromOrientation(orientation),
       width: fieldWidth,
       originY,
+      fill: pendingReverse ? "white" : "black",
     });
     resetField();
   };
@@ -387,36 +419,40 @@ export const parseZpl = (zpl: string): ZplParseResult => {
       continue;
     }
     if (cmd === "FR") {
+      pendingReverse = true;
       continue;
     }
     if (cmd === "GB") {
-      const [w, h, t, , r] = parseParams(args);
+      const [w, h, t, c, r] = parseParams(args);
       pendingKind = "box";
       pendingBox = {
         width: parseNumber(w),
         height: parseNumber(h),
         thickness: parseNumber(t, 1),
         rounding: parseNumber(r),
+        tone: parseTone(c),
       };
       continue;
     }
     if (cmd === "GC") {
-      const [d, t] = parseParams(args);
+      const [d, t, c] = parseParams(args);
       pendingKind = "circle";
       pendingCircle = {
         diameter: parseNumber(d),
         thickness: parseNumber(t, 1),
+        tone: parseTone(c),
       };
       continue;
     }
     if (cmd === "GD") {
-      const [w, h, t] = parseParams(args);
+      const [w, h, t, c] = parseParams(args);
       pendingKind = "box";
       pendingBox = {
         width: parseNumber(w),
         height: Math.max(1, parseNumber(t, 1)),
         thickness: parseNumber(t, 1),
         rounding: 0,
+        tone: parseTone(c),
       };
       warnings.push(`Diagonal line (^GD) imported as a bar (${parseNumber(w)}×${parseNumber(h)}).`);
       continue;
@@ -478,6 +514,8 @@ export const parseZpl = (zpl: string): ZplParseResult => {
     warnings.push("No drawable fields were found in the ZPL.");
   }
 
+  applyContrastHeuristic(objects);
+
   return { objects, warnings, labelWidth, labelHeight };
 };
 
@@ -499,8 +537,8 @@ export const addZplObjectsToCanvas = (canvas: fabric.Canvas, specs: ZplObjectSpe
 
       const obj =
         spec.width && spec.width > 0
-          ? new TextboxExt(spec.text, { ...textProps, width: spec.width })
-          : new fabric.IText(spec.text, textProps);
+          ? new TextboxExt(spec.text, { ...textProps, width: spec.width, fill: spec.fill })
+          : new fabric.IText(spec.text, { ...textProps, fill: spec.fill });
       canvas.add(obj);
       created.push(obj);
       continue;
@@ -516,8 +554,8 @@ export const addZplObjectsToCanvas = (canvas: fabric.Canvas, specs: ZplObjectSpe
         rx: spec.rx,
         ry: spec.rx,
         angle: spec.angle,
-        fill: spec.filled ? "black" : "transparent",
-        stroke: spec.filled ? "black" : "black",
+        fill: spec.filled ? spec.tone : "transparent",
+        stroke: spec.tone,
         strokeWidth: spec.filled ? 0 : spec.strokeWidth,
       });
       canvas.add(obj);
@@ -531,7 +569,8 @@ export const addZplObjectsToCanvas = (canvas: fabric.Canvas, specs: ZplObjectSpe
         left: spec.left,
         top: spec.top,
         radius: spec.radius,
-        fill: spec.filled ? "black" : "transparent",
+        fill: spec.filled ? spec.tone : "transparent",
+        stroke: spec.tone,
         strokeWidth: spec.filled ? 0 : spec.strokeWidth,
       });
       canvas.add(obj);

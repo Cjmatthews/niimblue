@@ -6,6 +6,7 @@
   import { Toasts } from "$/utils/toasts";
   import AppModal from "$/components/basic/AppModal.svelte";
   import { addZplObjectsToCanvas, parseZpl } from "$/utils/zpl_import";
+  import { canvasToZpl } from "$/utils/zpl_export";
   import type { CustomCanvas } from "$/fabric-object/custom_canvas";
 
   interface Props {
@@ -30,6 +31,38 @@
   const openModal = () => {
     warnings = [];
     show = true;
+  };
+
+  const exportCurrent = () => {
+    if (!canvas) {
+      Toasts.error("Canvas is not ready");
+      return "";
+    }
+
+    const result = canvasToZpl(canvas);
+    warnings = result.warnings;
+    zplText = result.zpl;
+    if (canvas.getObjects().length === 0) {
+      warnings = [$tr("editor.export.zpl.empty"), ...result.warnings];
+    }
+    return result.zpl;
+  };
+
+  const copyZpl = async () => {
+    const source = zplText.trim() ? zplText : exportCurrent();
+    if (!source.trim()) return;
+    try {
+      await navigator.clipboard.writeText(source);
+      Toasts.message($tr("editor.export.zpl.copied"));
+    } catch (e) {
+      Toasts.error(e);
+    }
+  };
+
+  const downloadZpl = () => {
+    const source = zplText.trim() ? zplText : exportCurrent();
+    if (!source.trim()) return;
+    FileUtils.saveTextFile(`label_${FileUtils.timestamp()}.zpl`, source);
   };
 
   const loadFromFile = async () => {
@@ -146,6 +179,18 @@
       <button class="btn btn-secondary" type="button" onclick={loadFromFile}>
         <MdIcon icon="folder_open" />
         {$tr("editor.import.zpl.file")}
+      </button>
+      <button class="btn btn-secondary" type="button" onclick={exportCurrent}>
+        <MdIcon icon="ios_share" />
+        {$tr("editor.export.zpl.current")}
+      </button>
+      <button class="btn btn-secondary" type="button" onclick={copyZpl}>
+        <MdIcon icon="content_copy" />
+        {$tr("editor.export.zpl.copy")}
+      </button>
+      <button class="btn btn-secondary" type="button" onclick={downloadZpl}>
+        <MdIcon icon="download" />
+        {$tr("editor.export.zpl.download")}
       </button>
       <div class="header-spacer"></div>
       <button class="btn btn-secondary" type="button" disabled={importState === "processing"} onclick={importAsImage}>
