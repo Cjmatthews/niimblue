@@ -17,10 +17,15 @@
   }
 
   let { labelProps, canvas, onImageReady, onObjectsImported }: Props = $props();
-  let importState = $state<"idle" | "processing" | "error">("idle");
+  let modalRef: AppModal | undefined;
+
+  const closeModal = () => {
+    modalRef?.hide();
+  };
   let show = $state(false);
   let zplText = $state("");
   let warnings = $state<string[]>([]);
+  let importState = $state<"idle" | "processing" | "error">("idle");
 
   const placeholder = `^XA
 ^FO20,16^A0N,28,28^FDHello NiimBlue^FS
@@ -103,7 +108,7 @@
     );
     canvas.setActiveObject(created[created.length - 1]!);
     onObjectsImported?.();
-    show = false;
+    closeModal();
     Toasts.message($tr("editor.import.zpl.success").replace("{n}", String(created.length)));
     if (overflow) {
       Toasts.message($tr("editor.import.zpl.overflow"));
@@ -141,7 +146,7 @@
         const img = await response.blob();
         onImageReady(img);
         importState = "idle";
-        show = false;
+        closeModal();
       } else {
         importState = "error";
         warnings = [$tr("editor.import.zpl.image_error")];
@@ -153,13 +158,13 @@
   };
 </script>
 
-<button class="btn btn-sm" onclick={openModal}>
+<button class="btn btn-sm tool-import-btn" onclick={openModal} title={$tr("editor.import.zpl")}>
   <MdIcon icon="code" />
-  {$tr("editor.import.zpl")}
+  <span class="tool-btn-label">{$tr("editor.import.zpl")}</span>
 </button>
 
 {#if show}
-  <AppModal title={$tr("editor.import.zpl.title")} bind:show size="lg">
+  <AppModal title={$tr("editor.import.zpl.title")} bind:show bind:this={modalRef} size="lg">
     <p class="text-secondary small mb-2">{$tr("editor.import.zpl.hint")}</p>
     <textarea
       class="form-control font-monospace zpl-input"

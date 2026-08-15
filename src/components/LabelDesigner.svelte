@@ -57,6 +57,8 @@
   let shortcutsShow = $state<boolean>(false);
   let dirty = $state<boolean>(false);
   let designerReady = false;
+  let mobileInspectorOpen = $state(false);
+  let mobileInspectorTab = $state<"props" | "layers">("props");
 
   const undo = new UndoRedo();
 
@@ -499,11 +501,34 @@
       renderOnFontsChanged();
     }
   });
+
+  $effect(() => {
+    if (windowWidth === 0 || windowWidth > 960) return;
+    if (selectedCount > 0) {
+      mobileInspectorTab = "props";
+    } else {
+      mobileInspectorOpen = false;
+    }
+  });
+
+  const openMobileInspector = (tab: "props" | "layers") => {
+    if (mobileInspectorOpen && mobileInspectorTab === tab) {
+      mobileInspectorOpen = false;
+      return;
+    }
+    mobileInspectorTab = tab;
+    mobileInspectorOpen = true;
+  };
 </script>
 
 <svelte:window bind:innerWidth={windowWidth} onkeydown={onKeyDown} onpaste={onPaste} />
 
-<div class="designer">
+<div
+  class="designer"
+  class:mobile-inspector-open={mobileInspectorOpen}
+  class:mobile-has-selection={selectedCount > 0}
+  class:mobile-tab-props={mobileInspectorTab === "props"}
+  class:mobile-tab-layers={mobileInspectorTab === "layers"}>
   <div class="designer-topbar">
     <div class="toolbar-cluster">
       <LabelPropsEditor {labelProps} onChange={onUpdateLabelProps} />
@@ -556,9 +581,9 @@
     <div class="header-spacer"></div>
 
     <div class="toolbar-cluster">
-      <button class="btn btn-sm btn-primary icon-btn" onclick={openPreview}>
+      <button class="btn btn-sm btn-primary icon-btn" onclick={openPreview} title={$tr("editor.preview")}>
         <MdIcon icon="visibility" />
-        {$tr("editor.preview")}
+        <span class="btn-label">{$tr("editor.preview")}</span>
       </button>
       <button
         title="Print with default or saved parameters"
@@ -566,7 +591,7 @@
         onclick={openPreviewAndPrint}
         disabled={$connectionState !== "connected"}>
         <MdIcon icon="print" />
-        {$tr("editor.print")}
+        <span class="btn-label">{$tr("editor.print")}</span>
       </button>
     </div>
   </div>
@@ -595,7 +620,47 @@
   </div>
 
   <aside class="inspector">
-    <div class="inspector-section">
+    <div class="inspector-handle">
+      <button
+        type="button"
+        class="inspector-tab"
+        class:active={mobileInspectorOpen && mobileInspectorTab === "props"}
+        onclick={() => openMobileInspector("props")}>
+        <MdIcon icon="tune" />
+        {$tr("ui.inspector")}
+        {#if selectedCount > 0}
+          <span class="inspector-count">{selectedCount}</span>
+        {/if}
+      </button>
+      <button
+        type="button"
+        class="inspector-tab"
+        class:active={mobileInspectorOpen && mobileInspectorTab === "layers"}
+        onclick={() => openMobileInspector("layers")}>
+        <MdIcon icon="layers" />
+        {$tr("ui.layers")}
+      </button>
+      <div class="inspector-quick-actions">
+        {#if selectedCount > 0}
+          <button type="button" class="inspector-quick" onclick={deleteSelected} title={$tr("editor.delete")}>
+            <MdIcon icon="delete" />
+          </button>
+          <button type="button" class="inspector-quick" onclick={cloneSelected} title={$tr("editor.clone")}>
+            <MdIcon icon="content_copy" />
+          </button>
+        {/if}
+        <button
+          type="button"
+          class="inspector-toggle"
+          onclick={() => (mobileInspectorOpen = !mobileInspectorOpen)}
+          aria-expanded={mobileInspectorOpen}>
+          <MdIcon icon={mobileInspectorOpen ? "expand_more" : "expand_less"} />
+        </button>
+      </div>
+    </div>
+
+    <div class="inspector-body">
+    <div class="inspector-section inspector-props">
       <h3>{$tr("ui.inspector")}</h3>
       {#if selectedCount > 0}
         <div class="inspector-controls">
@@ -644,9 +709,10 @@
       {/if}
     </div>
 
-    <div class="inspector-section">
+    <div class="inspector-section inspector-layers">
       <h3>{$tr("ui.layers")}</h3>
       <LayersPanel canvas={fabricCanvas} {selectedObject} {editRevision} />
+    </div>
     </div>
   </aside>
 

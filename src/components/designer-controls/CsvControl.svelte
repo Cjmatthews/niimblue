@@ -34,7 +34,7 @@
     data-bs-auto-close="outside"
     title={$tr("params.csv.title")}>
     <MdIcon icon="dataset" />
-    {#if labeled}CSV{/if}
+    {#if labeled}<span class="tool-btn-label">CSV</span>{/if}
   </button>
   <div class="dropdown-menu">
     <h6 class="dropdown-header">{$tr("params.csv.title")}</h6>

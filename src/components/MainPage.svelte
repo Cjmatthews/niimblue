@@ -7,6 +7,8 @@
   import DebugStuff from "$/components/DebugStuff.svelte";
   import MdIcon from "$/components/basic/MdIcon.svelte";
   import ShortcutsHelp from "$/components/ShortcutsHelp.svelte";
+  import { initMobileDropdownSheets } from "$/utils/mobile_dropdown_sheet";
+  import { onDestroy, onMount } from "svelte";
 
   // eslint-disable-next-line no-undef
   const appCommit = __APP_COMMIT__;
@@ -17,6 +19,15 @@
 
   let debugStuffShow = $state<boolean>(false);
   let shortcutsShow = $state<boolean>(false);
+  let stopDropdownSheets: (() => void) | undefined;
+
+  onMount(() => {
+    stopDropdownSheets = initMobileDropdownSheets();
+  });
+
+  onDestroy(() => {
+    stopDropdownSheets?.();
+  });
 </script>
 
 <div class="app-shell">
@@ -52,7 +63,7 @@
       </button>
     </div>
 
-    <div class="d-flex align-items-center gap-2 flex-wrap justify-content-end">
+    <div class="d-flex align-items-center gap-2 flex-wrap justify-content-end footer-meta">
       {#if appCommit}
         <a class="ghost-link" href="https://github.com/MultiMote/niimblue/commit/{appCommit}">
           {appCommit.slice(0, 6)}

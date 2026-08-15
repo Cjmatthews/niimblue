@@ -259,7 +259,7 @@
         class="btn btn-sm {connectionType === 'bluetooth' ? 'btn-primary' : 'btn-secondary'}"
         onclick={() => switchConnectionType("bluetooth")}>
         <MdIcon icon="bluetooth" />
-        {$tr("connector.bluetooth")}
+        <span class="btn-label">{$tr("connector.bluetooth")}</span>
       </button>
     {/if}
     {#if featureSupport.webSerial}
@@ -268,7 +268,7 @@
         class="btn btn-sm {connectionType === 'serial' ? 'btn-primary' : 'btn-secondary'}"
         onclick={() => switchConnectionType((connectionType = "serial"))}>
         <MdIcon icon="usb" />
-        {$tr("connector.serial")}
+        <span class="btn-label">{$tr("connector.serial")}</span>
       </button>
     {/if}
     {#if featureSupport.capacitorBle}
@@ -288,9 +288,9 @@
       onclick={onConnectClicked}>
       <MdIcon icon="power" />
       {#if $connectionState === "connecting"}
-        {$tr("ui.connecting")}
+        <span class="btn-label">{$tr("ui.connecting")}</span>
       {:else}
-        {$tr("ui.connect")}
+        <span class="btn-label">{$tr("ui.connect")}</span>
       {/if}
     </button>
   {/if}

@@ -36,7 +36,7 @@
   {#each tools as tool (tool.type)}
     <button class="tool-btn" type="button" title={$tr(tool.key)} onclick={() => onSubmit(tool.type)}>
       <MdIcon icon={tool.icon} />
-      {$tr(tool.key)}
+      <span class="tool-btn-label">{$tr(tool.key)}</span>
     </button>
   {/each}
   <div class="tool-imports">
@@ -92,5 +92,20 @@
     padding: 0.35rem 0.2rem;
     border-radius: 8px;
     color: var(--nb-text);
+  }
+
+  @media (max-width: 960px) {
+    .tool-imports {
+      flex-direction: row;
+      padding-top: 0;
+      gap: 0.1rem;
+    }
+
+    .tool-imports :global(.btn) {
+      width: 2.75rem;
+      min-height: 2.75rem;
+      padding: 0.15rem;
+      font-size: inherit;
+    }
   }
 </style>

@@ -15,31 +15,45 @@
 
   let modalEl: HTMLElement;
   let modal: Modal;
+  let hiding = false;
+
+  const unlockPage = () => {
+    document.querySelectorAll(".modal-backdrop").forEach((el) => el.remove());
+    document.body.classList.remove("modal-open");
+    document.body.style.removeProperty("overflow");
+    document.body.style.removeProperty("padding-right");
+  };
 
   onMount(() => {
     modal = new Modal(modalEl);
     modal.show();
 
-    modalEl.addEventListener('hide.bs.modal', () => {
+    modalEl.addEventListener("hide.bs.modal", () => {
+      hiding = true;
       if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
     });
 
     modalEl.addEventListener("hidden.bs.modal", () => {
+      unlockPage();
       if (onClose) onClose();
       show = false;
     });
-
   });
 
   onDestroy(() => {
     if (modal) {
-      modal.hide();
-      modal.dispose();
+      try {
+        modal.hide();
+        modal.dispose();
+      } catch {
+        // Modal DOM may already be gone
+      }
     }
+    unlockPage();
   });
 
   export const hide = () => {
-    if (modal) {
+    if (modal && !hiding) {
       modal.hide();
     }
   };

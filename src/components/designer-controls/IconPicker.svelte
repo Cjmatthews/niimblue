@@ -75,7 +75,7 @@
     title={$tr("editor.iconpicker.title")}>
     <MdIcon icon="emoji_emotions" />
     {#if labeled}
-      {$tr("editor.iconpicker.title")}
+      <span class="tool-btn-label">{$tr("editor.iconpicker.title")}</span>
     {:else}
       <MdIcon icon="add" />
     {/if}
