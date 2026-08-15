@@ -8,9 +8,10 @@
   interface Props {
     enabled: boolean;
     onPlaceholderPicked: (name: string) => void;
+    labeled?: boolean;
   }
 
-  let { enabled = $bindable(), onPlaceholderPicked }: Props = $props();
+  let { enabled = $bindable(), onPlaceholderPicked, labeled = false }: Props = $props();
 
   let placeholders = $state<string[]>([]);
   let rows = $state<number>(0);
@@ -26,13 +27,14 @@
   });
 </script>
 
-<div class="dropdown">
+<div class="dropdown dropend">
   <button
-    class="btn btn-sm btn-{enabled ? 'warning' : 'secondary'}"
+    class={labeled ? `tool-btn ${enabled ? "active" : ""}` : `btn btn-sm btn-${enabled ? "warning" : "secondary"}`}
     data-bs-toggle="dropdown"
     data-bs-auto-close="outside"
     title={$tr("params.csv.title")}>
     <MdIcon icon="dataset" />
+    {#if labeled}CSV{/if}
   </button>
   <div class="dropdown-menu">
     <h6 class="dropdown-header">{$tr("params.csv.title")}</h6>

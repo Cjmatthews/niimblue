@@ -10,9 +10,10 @@
   interface Props {
     onSubmit: (i: MaterialIcon) => void;
     onSubmitSvg: (i: string) => void;
+    labeled?: boolean;
   }
 
-  let { onSubmit, onSubmitSvg }: Props = $props();
+  let { onSubmit, onSubmitSvg, labeled = false }: Props = $props();
 
   let iconNames = $state<MaterialIcon[]>([]);
   let search = $state<string>("");
@@ -66,10 +67,18 @@
   });
 </script>
 
-<div class="dropdown" bind:this={dropdown}>
-  <button class="btn btn-sm btn-secondary" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+<div class="dropdown dropend" bind:this={dropdown}>
+  <button
+    class={labeled ? "tool-btn" : "btn btn-sm btn-secondary"}
+    data-bs-toggle="dropdown"
+    data-bs-auto-close="outside"
+    title={$tr("editor.iconpicker.title")}>
     <MdIcon icon="emoji_emotions" />
-    <MdIcon icon="add" />
+    {#if labeled}
+      {$tr("editor.iconpicker.title")}
+    {:else}
+      <MdIcon icon="add" />
+    {/if}
   </button>
 
   <div class="dropdown-menu">

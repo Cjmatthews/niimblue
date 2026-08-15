@@ -391,7 +391,7 @@
   });
 </script>
 
-<AppModal title={$tr("preview.title")} onClose={onModalClose} bind:show bind:this={modalRef}>
+<AppModal title={$tr("preview.title")} onClose={onModalClose} bind:show bind:this={modalRef} size="xl">
   <div class="d-flex justify-content-center">
     {#if pagesTotal > 1}
       <button disabled={printState !== "idle"} class="btn w-100 fs-1" onclick={pageDown}>
@@ -429,6 +429,7 @@
   </div>
 
   {#snippet footer()}
+    <div class="preview-settings">
     <div class="input-group input-group-sm">
       <span class="input-group-text">{$tr("preview.postprocess")}</span>
 
@@ -634,7 +635,9 @@
 
       <ParamLockButton propName="offset" value={offset} savedValue={savedProps.offset} onClick={toggleSavedProp} />
     </div>
+    </div>
 
+    <div class="d-flex flex-wrap gap-2 justify-content-end w-100">
     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{$tr("preview.close")}</button>
 
     {#if printState !== "idle"}
@@ -658,6 +661,7 @@
         <MdIcon icon="print" /> {$tr("preview.print")}
       {/if}
     </button>
+    </div>
   {/snippet}
 </AppModal>
 
