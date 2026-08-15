@@ -4,22 +4,90 @@
   import MdIcon from "$/components/basic/MdIcon.svelte";
   import { tr } from "$/utils/i18n";
   import { Toasts } from "$/utils/toasts";
+  import AppModal from "$/components/basic/AppModal.svelte";
+  import { addZplObjectsToCanvas, parseZpl } from "$/utils/zpl_import";
+  import type { CustomCanvas } from "$/fabric-object/custom_canvas";
 
   interface Props {
     labelProps: LabelProps;
+    canvas?: CustomCanvas;
     onImageReady: (img: Blob) => void;
+    onObjectsImported?: () => void;
   }
 
-  let { labelProps, onImageReady }: Props = $props();
+  let { labelProps, canvas, onImageReady, onObjectsImported }: Props = $props();
   let importState = $state<"idle" | "processing" | "error">("idle");
+  let show = $state(false);
+  let zplText = $state("");
+  let warnings = $state<string[]>([]);
 
-  const onImportClicked = async () => {
+  const placeholder = `^XA
+^FO20,16^A0N,28,28^FDHello NiimBlue^FS
+^FO20,52^GB200,4,4^FS
+^FO20,70^BQN,2,4^FDQA,https://niim.blue^FS
+^XZ`;
+
+  const openModal = () => {
+    warnings = [];
+    show = true;
+  };
+
+  const loadFromFile = async () => {
+    try {
+      zplText = await FileUtils.pickAndReadSingleTextFile("zpl");
+    } catch (e) {
+      Toasts.error(e);
+    }
+  };
+
+  const importAsObjects = () => {
+    if (!canvas) {
+      Toasts.error("Canvas is not ready");
+      return;
+    }
+
+    const source = zplText.trim();
+    if (!source) {
+      warnings = [$tr("editor.import.zpl.empty")];
+      return;
+    }
+
+    const result = parseZpl(source);
+    warnings = result.warnings;
+
+    if (result.objects.length === 0) {
+      return;
+    }
+
+    const created = addZplObjectsToCanvas(canvas, result.objects);
+    if (created.length === 0) {
+      return;
+    }
+
+    const overflow = created.some(
+      (obj) =>
+        (obj.left ?? 0) + (obj.width ?? 0) > canvas.getWidth() || (obj.top ?? 0) + (obj.height ?? 0) > canvas.getHeight(),
+    );
+    canvas.setActiveObject(created[created.length - 1]!);
+    onObjectsImported?.();
+    show = false;
+    Toasts.message($tr("editor.import.zpl.success").replace("{n}", String(created.length)));
+    if (overflow) {
+      Toasts.message($tr("editor.import.zpl.overflow"));
+    }
+  };
+
+  const importAsImage = async () => {
+    const source = zplText.trim();
+    if (!source) {
+      warnings = [$tr("editor.import.zpl.empty")];
+      return;
+    }
+
     const mmToInchCoeff = 25.4;
-    const dpmm = 8; // todo: may vary, make it configurable
+    const dpmm = 8;
     const widthInches = labelProps.size.width / dpmm / mmToInchCoeff;
     const heightInches = labelProps.size.height / dpmm / mmToInchCoeff;
-
-    const contents = await FileUtils.pickAndReadSingleTextFile("zpl");
 
     importState = "processing";
 
@@ -33,15 +101,17 @@
             Accept: "image/png",
             "X-Quality": "bitonal",
           },
-          body: contents,
+          body: source,
         },
       );
       if (response.ok) {
         const img = await response.blob();
         onImageReady(img);
         importState = "idle";
+        show = false;
       } else {
         importState = "error";
+        warnings = [$tr("editor.import.zpl.image_error")];
       }
     } catch (e) {
       importState = "error";
@@ -50,14 +120,52 @@
   };
 </script>
 
-<button class="btn btn-sm" onclick={onImportClicked}>
-  <MdIcon icon="picture_as_pdf" />
-
+<button class="btn btn-sm" onclick={openModal}>
+  <MdIcon icon="code" />
   {$tr("editor.import.zpl")}
-
-  {#if importState === "processing"}
-    <MdIcon icon="hourglass_top" />
-  {:else if importState === "error"}
-    <MdIcon icon="warning" class="text-warning" />
-  {/if}
 </button>
+
+{#if show}
+  <AppModal title={$tr("editor.import.zpl.title")} bind:show size="lg">
+    <p class="text-secondary small mb-2">{$tr("editor.import.zpl.hint")}</p>
+    <textarea
+      class="form-control font-monospace zpl-input"
+      rows="12"
+      placeholder={placeholder}
+      bind:value={zplText}></textarea>
+
+    {#if warnings.length > 0}
+      <div class="alert alert-warning mt-2 mb-0" role="alert">
+        {#each warnings as warning (warning)}
+          <div>{warning}</div>
+        {/each}
+      </div>
+    {/if}
+
+    {#snippet footer()}
+      <button class="btn btn-secondary" type="button" onclick={loadFromFile}>
+        <MdIcon icon="folder_open" />
+        {$tr("editor.import.zpl.file")}
+      </button>
+      <div class="header-spacer"></div>
+      <button class="btn btn-secondary" type="button" disabled={importState === "processing"} onclick={importAsImage}>
+        <MdIcon icon="image" />
+        {#if importState === "processing"}
+          <MdIcon icon="hourglass_top" />
+        {/if}
+        {$tr("editor.import.zpl.image")}
+      </button>
+      <button class="btn btn-primary" type="button" onclick={importAsObjects}>
+        <MdIcon icon="layers" />
+        {$tr("editor.import.zpl.objects")}
+      </button>
+    {/snippet}
+  </AppModal>
+{/if}
+
+<style>
+  .zpl-input {
+    font-size: 0.82rem;
+    min-height: 220px;
+  }
+</style>

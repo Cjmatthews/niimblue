@@ -573,7 +573,17 @@
 
   <aside class="tools-rail">
     <div class="tools-group-label">{$tr("ui.tools")}</div>
-    <ObjectPicker variant="rail" onSubmit={onObjectPicked} {labelProps} {zplImageReady} {pdfImageReady} />
+    <ObjectPicker
+      variant="rail"
+      onSubmit={onObjectPicked}
+      {labelProps}
+      {zplImageReady}
+      {pdfImageReady}
+      canvas={fabricCanvas}
+      onZplObjectsImported={() => {
+        undo.push(fabricCanvas!, labelProps);
+        editRevision++;
+      }} />
     <IconPicker labeled onSubmit={onIconPicked} onSubmitSvg={onSvgIconPicked} />
     <CsvControl labeled bind:enabled={csvEnabled} onPlaceholderPicked={onCsvPlaceholderPicked} />
   </aside>

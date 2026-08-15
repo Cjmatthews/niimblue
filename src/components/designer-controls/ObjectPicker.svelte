@@ -5,6 +5,7 @@
   import ZplImportButton from "$/components/designer-controls/ZplImportButton.svelte";
   import PdfImportButton from "$/components/designer-controls/PdfImportButton.svelte";
   import type { MaterialIcon } from "$/styles/mdi_icons";
+  import type { CustomCanvas } from "$/fabric-object/custom_canvas";
 
   interface Props {
     onSubmit: (i: OjectType) => void;
@@ -12,9 +13,12 @@
     zplImageReady: (img: Blob) => void;
     pdfImageReady: (img: HTMLCanvasElement) => void;
     variant?: "dropdown" | "rail";
+    canvas?: CustomCanvas;
+    onZplObjectsImported?: () => void;
   }
 
-  let { onSubmit, labelProps, zplImageReady, pdfImageReady, variant = "dropdown" }: Props = $props();
+  let { onSubmit, labelProps, zplImageReady, pdfImageReady, variant = "dropdown", canvas, onZplObjectsImported }: Props =
+    $props();
 
   const tools: { type: OjectType; icon: MaterialIcon; key: TranslationKey }[] = [
     { type: "text", icon: "title", key: "editor.objectpicker.text" },
@@ -36,7 +40,7 @@
     </button>
   {/each}
   <div class="tool-imports">
-    <ZplImportButton {labelProps} onImageReady={zplImageReady} />
+    <ZplImportButton {labelProps} {canvas} onImageReady={zplImageReady} onObjectsImported={onZplObjectsImported} />
     <PdfImportButton {labelProps} onImageReady={pdfImageReady} />
   </div>
 {:else}
@@ -56,7 +60,7 @@
           </button>
         {/each}
 
-        <ZplImportButton {labelProps} onImageReady={zplImageReady} />
+        <ZplImportButton {labelProps} {canvas} onImageReady={zplImageReady} onObjectsImported={onZplObjectsImported} />
 
         <PdfImportButton {labelProps} onImageReady={pdfImageReady} />
       </div>
