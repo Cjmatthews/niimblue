@@ -382,21 +382,21 @@ body {
 
 .tool-btn {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
-  gap: 0.4rem;
+  justify-content: center;
+  gap: 0.12rem;
   width: 100%;
-  min-height: 2.4rem;
-  padding: 0.3rem 0.45rem;
+  min-height: 2.7rem;
+  padding: 0.28rem 0.2rem;
   border: 1px solid transparent;
   border-radius: var(--nb-radius-sm);
   background: transparent;
   color: var(--nb-text);
-  font-size: 0.72rem;
+  font-size: 0.62rem;
   font-weight: 650;
   line-height: 1.1;
-  text-align: left;
+  text-align: center;
 }
 
 .tool-btn:hover,
@@ -415,9 +415,8 @@ body {
 }
 
 .tool-btn .mdi {
-  font-size: 1.2rem;
+  font-size: 1.25rem;
   line-height: 1;
-  flex: 0 0 auto;
 }
 
 .tool-btn-label {
@@ -841,14 +840,14 @@ body {
 
   .tool-btn {
     width: auto;
-    min-width: auto;
-    min-height: 2.5rem;
+    min-width: 3rem;
+    min-height: 2.85rem;
     flex: 0 0 auto;
-    padding: 0.25rem 0.5rem;
+    padding: 0.22rem 0.3rem;
   }
 
   .tool-btn-label {
-    display: inline;
+    display: block;
     white-space: nowrap;
   }
 
@@ -862,8 +861,9 @@ body {
 
   .tools-rail .tool-import-btn {
     width: auto;
-    min-height: 2.5rem;
-    padding: 0.25rem 0.5rem;
+    min-width: 3rem;
+    min-height: 2.85rem;
+    padding: 0.22rem 0.3rem;
     border: 1px solid transparent;
     background: transparent;
     color: var(--nb-text);
