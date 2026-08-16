@@ -6,12 +6,13 @@
     show: boolean;
     title: string;
     size?: "md" | "lg" | "xl";
+    tall?: boolean;
     onClose?: () => void;
     children: Snippet;
     footer?: Snippet;
   }
 
-  let { show = $bindable(), title, size = "md", onClose, children, footer }: Props = $props();
+  let { show = $bindable(), title, size = "md", tall = false, onClose, children, footer }: Props = $props();
 
   let modalEl: HTMLElement;
   let modal: Modal;
@@ -60,7 +61,10 @@
 </script>
 
 <div bind:this={modalEl} class="modal fade" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable {size === 'md' ? '' : `modal-${size}`}">
+  <div
+    class="modal-dialog modal-dialog-centered {tall ? 'modal-dialog-tall' : 'modal-dialog-scrollable'} {size === 'md'
+      ? ''
+      : `modal-${size}`}">
     <div class="modal-content">
       <div class="modal-header">
         <h1 class="modal-title fs-5">{title}</h1>
