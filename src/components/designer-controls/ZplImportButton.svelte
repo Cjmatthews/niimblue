@@ -90,28 +90,33 @@
       return;
     }
 
-    const result = parseZpl(source);
-    warnings = result.warnings;
+    try {
+      const result = parseZpl(source);
+      warnings = result.warnings;
 
-    if (result.objects.length === 0) {
-      return;
-    }
+      if (result.objects.length === 0) {
+        return;
+      }
 
-    const created = addZplObjectsToCanvas(canvas, result.objects);
-    if (created.length === 0) {
-      return;
-    }
+      const created = addZplObjectsToCanvas(canvas, result.objects);
+      if (created.length === 0) {
+        return;
+      }
 
-    const overflow = created.some(
-      (obj) =>
-        (obj.left ?? 0) + (obj.width ?? 0) > canvas.getWidth() || (obj.top ?? 0) + (obj.height ?? 0) > canvas.getHeight(),
-    );
-    canvas.setActiveObject(created[created.length - 1]!);
-    onObjectsImported?.();
-    closeModal();
-    Toasts.message($tr("editor.import.zpl.success").replace("{n}", String(created.length)));
-    if (overflow) {
-      Toasts.message($tr("editor.import.zpl.overflow"));
+      const overflow = created.some(
+        (obj) =>
+          (obj.left ?? 0) + (obj.width ?? 0) > canvas.getWidth() ||
+          (obj.top ?? 0) + (obj.height ?? 0) > canvas.getHeight(),
+      );
+      canvas.setActiveObject(created[created.length - 1]!);
+      onObjectsImported?.();
+      closeModal();
+      Toasts.message($tr("editor.import.zpl.success").replace("{n}", String(created.length)));
+      if (overflow) {
+        Toasts.message($tr("editor.import.zpl.overflow"));
+      }
+    } catch (e) {
+      Toasts.error(e);
     }
   };
 

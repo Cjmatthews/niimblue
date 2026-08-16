@@ -26,6 +26,7 @@
   };
 
   onMount(() => {
+    document.body.append(modalEl);
     modal = new Modal(modalEl);
     modal.show();
 
@@ -51,6 +52,7 @@
       }
     }
     unlockPage();
+    modalEl?.remove();
   });
 
   export const hide = () => {
