@@ -101,10 +101,16 @@
     undo.push(fabricCanvas!, labelProps);
   };
 
+  let keyboardPasteAt = 0;
+
   const onKeyDown = (e: KeyboardEvent) => {
     const key: string = e.key.toLowerCase();
     // windows and linux users are used to ctrl, mac users use cmd
     const cmdOrCtrl = e.metaKey || e.ctrlKey;
+
+    if (cmdOrCtrl && !e.altKey && key === "v") {
+      keyboardPasteAt = performance.now();
+    }
 
     // Esc
     if (key === "escape") {
@@ -268,6 +274,15 @@
   };
 
   const onPaste = async (event: ClipboardEvent) => {
+    // Ignore Linux/X11 middle-click PRIMARY paste; canvas paste is Ctrl/⌘+V only.
+    const fromShortcut = performance.now() - keyboardPasteAt < 1000;
+    if (!fromShortcut) {
+      if (!LabelDesignerUtils.isAnyInputFocused(fabricCanvas!)) {
+        event.preventDefault();
+      }
+      return;
+    }
+
     if (LabelDesignerUtils.isAnyInputFocused(fabricCanvas!)) {
       return;
     }

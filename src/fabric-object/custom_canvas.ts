@@ -94,6 +94,12 @@ export class CustomCanvas extends fabric.Canvas {
       viewport.classList.add("is-panning");
     };
 
+    const blockMiddleClickDefault = (event: MouseEvent) => {
+      if (event.button === 1) {
+        event.preventDefault();
+      }
+    };
+
     const onPointerMove = (event: PointerEvent) => {
       if (!panning) return;
       this.panBy(event.clientX - lastX, event.clientY - lastY);
@@ -167,6 +173,8 @@ export class CustomCanvas extends fabric.Canvas {
     viewport.addEventListener("pointermove", onPointerMove);
     viewport.addEventListener("pointerup", onPointerUp);
     viewport.addEventListener("pointercancel", onPointerUp);
+    viewport.addEventListener("mousedown", blockMiddleClickDefault);
+    viewport.addEventListener("auxclick", blockMiddleClickDefault);
     viewport.addEventListener("touchstart", onTouchStart, { passive: false });
     viewport.addEventListener("touchmove", onTouchMove, { passive: false });
     viewport.addEventListener("touchend", stopTouch);
@@ -178,6 +186,8 @@ export class CustomCanvas extends fabric.Canvas {
       viewport.removeEventListener("pointermove", onPointerMove);
       viewport.removeEventListener("pointerup", onPointerUp);
       viewport.removeEventListener("pointercancel", onPointerUp);
+      viewport.removeEventListener("mousedown", blockMiddleClickDefault);
+      viewport.removeEventListener("auxclick", blockMiddleClickDefault);
       viewport.removeEventListener("touchstart", onTouchStart);
       viewport.removeEventListener("touchmove", onTouchMove);
       viewport.removeEventListener("touchend", stopTouch);

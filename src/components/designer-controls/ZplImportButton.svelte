@@ -17,7 +17,7 @@
   }
 
   let { labelProps, canvas, onImageReady, onObjectsImported }: Props = $props();
-  let modalRef: AppModal | undefined;
+  let modalRef = $state<AppModal | undefined>();
 
   const closeModal = () => {
     modalRef?.hide();
