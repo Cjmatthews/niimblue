@@ -17,12 +17,6 @@
 
   let { canvas, selectedObject, editRevision, onVisibilityChange }: Props = $props();
 
-  let objects = $derived.by(() => {
-    void editRevision;
-    const list = canvas?.getObjects() ?? [];
-    return [...list].reverse();
-  });
-
   const iconFor = (obj: fabric.FabricObject): MaterialIcon => {
     if (obj instanceof fabric.IText) return "title";
     if (obj instanceof QRCode) return "qr_code_2";
@@ -48,6 +42,30 @@
   };
 
   let visEpoch = $state(0);
+  let objectIds = new WeakMap<fabric.FabricObject, number>();
+  let nextObjectId = 1;
+
+  const idFor = (obj: fabric.FabricObject) => {
+    let id = objectIds.get(obj);
+    if (id === undefined) {
+      id = nextObjectId++;
+      objectIds.set(obj, id);
+    }
+    return id;
+  };
+
+  let rows = $derived.by(() => {
+    void editRevision;
+    void visEpoch;
+    const list = canvas?.getObjects() ?? [];
+    return [...list].reverse().map((obj, i, arr) => ({
+      obj,
+      id: idFor(obj),
+      hidden: obj.visible === false,
+      label: labelFor(obj),
+      index: arr.length - i,
+    }));
+  });
 
   const selectLayer = (obj: fabric.FabricObject) => {
     if (!canvas) return;
@@ -66,23 +84,22 @@
 </script>
 
 <div class="d-flex flex-column gap-1">
-  {#if objects.length === 0}
+  {#if rows.length === 0}
     <div class="text-secondary small">{$tr("ui.layers.empty")}</div>
   {:else}
-    {#each objects as obj, i (obj)}
-      {@const hidden = visEpoch >= 0 && obj.visible === false}
-      <div class="layer-item {selectedObject === obj ? 'active' : ''} {hidden ? 'is-hidden' : ''}">
-        <button class="layer-select" type="button" onclick={() => selectLayer(obj)}>
-          <MdIcon icon={iconFor(obj)} />
-          <span class="text-truncate">{labelFor(obj)}</span>
+    {#each rows as row (`${row.id}:${row.label}:${row.hidden}`)}
+      <div class="layer-item {selectedObject === row.obj ? 'active' : ''} {row.hidden ? 'is-hidden' : ''}">
+        <button class="layer-select" type="button" onclick={() => selectLayer(row.obj)}>
+          <MdIcon icon={iconFor(row.obj)} />
+          <span class="text-truncate">{row.label}</span>
         </button>
-        <span class="layer-index text-secondary small">{objects.length - i}</span>
+        <span class="layer-index text-secondary small">{row.index}</span>
         <button
-          class="layer-vis {hidden ? 'off' : 'on'}"
+          class="layer-vis {row.hidden ? 'off' : 'on'}"
           type="button"
-          title={hidden ? $tr("ui.layers.show") : $tr("ui.layers.hide")}
-          onclick={(e) => toggleVisible(obj, e)}>
-          <MdIcon icon={hidden ? "visibility_off" : "visibility"} />
+          title={row.hidden ? $tr("ui.layers.show") : $tr("ui.layers.hide")}
+          onclick={(e) => toggleVisible(row.obj, e)}>
+          <MdIcon icon={row.hidden ? "visibility_off" : "visibility"} />
         </button>
       </div>
     {/each}
