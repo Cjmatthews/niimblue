@@ -369,6 +369,16 @@
 
     await loadDefaultLabel();
 
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        if (window.innerWidth <= 960) {
+          fabricCanvas?.fitToViewport();
+        } else {
+          fabricCanvas?.centerInViewport();
+        }
+      });
+    });
+
     window.addEventListener("hashchange", loadLabelFromUrl);
 
     undo.push(fabricCanvas, labelProps);

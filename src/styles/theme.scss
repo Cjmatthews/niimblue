@@ -464,14 +464,21 @@ body {
   min-width: 0;
   min-height: 0;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: safe center;
+  justify-content: safe center;
   overflow: auto;
+  overscroll-behavior: contain;
   background-color: var(--nb-workspace);
   background-image:
     linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
   background-size: 22px 22px;
+}
+
+.canvas-stage.is-panning,
+.canvas-stage.is-panning * {
+  cursor: grabbing !important;
+  user-select: none;
 }
 
 .canvas-chrome {
@@ -496,10 +503,9 @@ body {
   box-shadow:
     0 24px 64px rgba(0, 0, 0, 0.45),
     0 0 0 1px rgba(255, 255, 255, 0.04);
-  max-width: calc(100% - 1.5rem);
-  max-height: calc(100% - 1.5rem);
-  overflow: auto;
-  margin: 0.75rem;
+  overflow: visible;
+  overscroll-behavior: contain;
+  margin: auto;
 }
 
 .canvas-wrapper.print-start-left {
@@ -981,13 +987,11 @@ body {
 
   .canvas-stage {
     min-height: 0;
-    padding-bottom: 3.4rem;
+    padding: 0.5rem 0.5rem 3.6rem;
   }
 
   .canvas-wrapper {
-    max-width: calc(100% - 1rem);
-    max-height: calc(100% - 1rem);
-    margin: 0.5rem;
+    margin: auto;
   }
 
   .connection-name {
