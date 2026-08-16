@@ -72,7 +72,21 @@ const onHidden = (e: Event) => {
   state.backdrop.remove();
 };
 
+const initRailDropdowns = () => {
+  document.querySelectorAll(".tools-rail [data-bs-toggle='dropdown']").forEach((el) => {
+    if (!(el instanceof HTMLElement)) return;
+    Dropdown.getOrCreateInstance(el, {
+      autoClose: "outside",
+      popperConfig: (defaultConfig) => ({
+        ...defaultConfig,
+        strategy: "fixed",
+      }),
+    });
+  });
+};
+
 export const initMobileDropdownSheets = () => {
+  initRailDropdowns();
   document.addEventListener("show.bs.dropdown", onShow, true);
   document.addEventListener("hidden.bs.dropdown", onHidden, true);
 
