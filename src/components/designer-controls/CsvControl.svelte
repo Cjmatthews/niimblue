@@ -34,15 +34,17 @@
     data-bs-auto-close="outside"
     title={$tr("params.csv.title")}>
     <MdIcon icon="dataset" />
-    {#if labeled}<span class="tool-btn-label">CSV</span>{/if}
+    {#if labeled}<span class="tool-btn-label">{$tr("editor.rail.csv")}</span>{/if}
   </button>
   <div class="dropdown-menu">
     <h6 class="dropdown-header">{$tr("params.csv.title")}</h6>
     <div class="p-3 text-body-secondary">
-      <div class="form-check form-switch">
-        <input class="form-check-input" type="checkbox" role="switch" id="enabled" bind:checked={enabled} />
-        <label class="form-check-label" for="enabled">{$tr("params.csv.enabled")}</label>
-      </div>
+      <label class="csv-enable-bar {enabled ? 'on' : ''}">
+        <span>{$tr("params.csv.use")}</span>
+        <span class="form-check form-switch mb-0">
+          <input class="form-check-input" type="checkbox" role="switch" bind:checked={enabled} />
+        </span>
+      </label>
 
       <div class="mt-3">
         {$tr("params.csv.tip")}
@@ -73,5 +75,33 @@
   textarea.dsv {
     font-family: monospace;
     min-height: 240px;
+  }
+
+  .csv-enable-bar {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.7rem 0.9rem;
+    border-radius: 10px;
+    border: 1px solid var(--nb-border-strong);
+    background: var(--nb-surface);
+    color: var(--nb-text);
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+  }
+
+  .csv-enable-bar.on {
+    background: color-mix(in srgb, var(--nb-accent) 22%, var(--nb-surface-2));
+    border-color: color-mix(in srgb, var(--nb-accent) 50%, transparent);
+  }
+
+  .csv-enable-bar :global(.form-check-input) {
+    width: 2.4rem;
+    height: 1.25rem;
+    cursor: pointer;
+    margin: 0;
   }
 </style>

@@ -247,6 +247,12 @@
     editRevision++;
   };
 
+  const onLayerVisibilityChange = () => {
+    undo.push(fabricCanvas!, labelProps);
+    fabricCanvas!.requestRenderAll();
+    editRevision++;
+  };
+
   const getCanvasForPreview = (): FabricJson => {
     return fabricCanvas!.toJSON();
   };
@@ -711,7 +717,7 @@
 
     <div class="inspector-section inspector-layers">
       <h3>{$tr("ui.layers")}</h3>
-      <LayersPanel canvas={fabricCanvas} {selectedObject} {editRevision} />
+      <LayersPanel canvas={fabricCanvas} {selectedObject} {editRevision} onVisibilityChange={onLayerVisibilityChange} />
     </div>
     </div>
   </aside>

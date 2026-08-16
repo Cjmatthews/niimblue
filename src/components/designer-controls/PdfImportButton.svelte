@@ -57,9 +57,9 @@
   };
 </script>
 
-<button class="btn btn-sm tool-import-btn" onclick={onImportClicked} title={$tr("editor.import.pdf")}>
+<button class="tool-btn tool-import-btn" onclick={onImportClicked} title={$tr("editor.import.pdf")}>
   <MdIcon icon="receipt_long" />
-  <span class="tool-btn-label">{$tr("editor.import.pdf")}</span>
+  <span class="tool-btn-label">{$tr("editor.rail.pdf")}</span>
 
   {#if importState === "processing"}
     <MdIcon icon="hourglass_top" />

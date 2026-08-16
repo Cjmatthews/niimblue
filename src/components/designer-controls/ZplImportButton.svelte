@@ -158,7 +158,7 @@
   };
 </script>
 
-<button class="btn btn-sm tool-import-btn" onclick={openModal} title={$tr("editor.import.zpl")}>
+<button class="tool-btn tool-import-btn" onclick={openModal} title={$tr("editor.import.zpl")}>
   <MdIcon icon="code" />
   <span class="tool-btn-label">{$tr("editor.import.zpl")}</span>
 </button>
@@ -181,34 +181,44 @@
     {/if}
 
     {#snippet footer()}
-      <button class="btn btn-secondary" type="button" onclick={loadFromFile}>
-        <MdIcon icon="folder_open" />
-        {$tr("editor.import.zpl.file")}
-      </button>
-      <button class="btn btn-secondary" type="button" onclick={exportCurrent}>
-        <MdIcon icon="ios_share" />
-        {$tr("editor.export.zpl.current")}
-      </button>
-      <button class="btn btn-secondary" type="button" onclick={copyZpl}>
-        <MdIcon icon="content_copy" />
-        {$tr("editor.export.zpl.copy")}
-      </button>
-      <button class="btn btn-secondary" type="button" onclick={downloadZpl}>
-        <MdIcon icon="download" />
-        {$tr("editor.export.zpl.download")}
-      </button>
-      <div class="header-spacer"></div>
-      <button class="btn btn-secondary" type="button" disabled={importState === "processing"} onclick={importAsImage}>
-        <MdIcon icon="image" />
-        {#if importState === "processing"}
-          <MdIcon icon="hourglass_top" />
-        {/if}
-        {$tr("editor.import.zpl.image")}
-      </button>
-      <button class="btn btn-primary" type="button" onclick={importAsObjects}>
-        <MdIcon icon="layers" />
-        {$tr("editor.import.zpl.objects")}
-      </button>
+      <div class="zpl-footer-actions">
+        <div class="zpl-footer-group">
+          <button class="btn btn-sm btn-secondary" type="button" onclick={loadFromFile} title={$tr("editor.import.zpl.file")}>
+            <MdIcon icon="folder_open" />
+            {$tr("editor.import.zpl.file")}
+          </button>
+          <button class="btn btn-sm btn-secondary" type="button" onclick={exportCurrent} title={$tr("editor.export.zpl.current")}>
+            <MdIcon icon="ios_share" />
+            {$tr("editor.export.zpl.current")}
+          </button>
+          <button class="btn btn-sm btn-secondary" type="button" onclick={copyZpl} title={$tr("editor.export.zpl.copy")}>
+            <MdIcon icon="content_copy" />
+            {$tr("editor.export.zpl.copy")}
+          </button>
+          <button class="btn btn-sm btn-secondary" type="button" onclick={downloadZpl} title={$tr("editor.export.zpl.download")}>
+            <MdIcon icon="download" />
+            {$tr("editor.export.zpl.download")}
+          </button>
+        </div>
+        <div class="zpl-footer-group zpl-footer-import">
+          <button
+            class="btn btn-sm btn-secondary"
+            type="button"
+            disabled={importState === "processing"}
+            onclick={importAsImage}
+            title={$tr("editor.import.zpl.image")}>
+            <MdIcon icon="image" />
+            {#if importState === "processing"}
+              <MdIcon icon="hourglass_top" />
+            {/if}
+            {$tr("editor.import.zpl.image")}
+          </button>
+          <button class="btn btn-sm btn-primary" type="button" onclick={importAsObjects} title={$tr("editor.import.zpl.objects")}>
+            <MdIcon icon="layers" />
+            {$tr("editor.import.zpl.objects")}
+          </button>
+        </div>
+      </div>
     {/snippet}
   </AppModal>
 {/if}
@@ -217,5 +227,21 @@
   .zpl-input {
     font-size: 0.82rem;
     min-height: 220px;
+  }
+
+  .zpl-footer-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .zpl-footer-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    align-items: center;
   }
 </style>

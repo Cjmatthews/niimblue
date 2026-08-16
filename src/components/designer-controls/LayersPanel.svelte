@@ -12,9 +12,10 @@
     canvas: CustomCanvas | undefined;
     selectedObject: fabric.FabricObject | undefined;
     editRevision: number;
+    onVisibilityChange?: () => void;
   }
 
-  let { canvas, selectedObject, editRevision }: Props = $props();
+  let { canvas, selectedObject, editRevision, onVisibilityChange }: Props = $props();
 
   let objects = $derived.by(() => {
     void editRevision;
@@ -51,6 +52,14 @@
     canvas.setActiveObject(obj);
     canvas.requestRenderAll();
   };
+
+  const toggleVisible = (obj: fabric.FabricObject, e: MouseEvent) => {
+    e.stopPropagation();
+    obj.set("visible", obj.visible === false);
+    obj.dirty = true;
+    canvas?.requestRenderAll();
+    onVisibilityChange?.();
+  };
 </script>
 
 <div class="d-flex flex-column gap-1">
@@ -58,11 +67,21 @@
     <div class="text-secondary small">{$tr("ui.layers.empty")}</div>
   {:else}
     {#each objects as obj, i (obj)}
-      <button class="layer-item {selectedObject === obj ? 'active' : ''}" type="button" onclick={() => selectLayer(obj)}>
-        <MdIcon icon={iconFor(obj)} />
-        <span class="text-truncate">{labelFor(obj)}</span>
-        <span class="ms-auto text-secondary small">{objects.length - i}</span>
-      </button>
+      {@const hidden = obj.visible === false}
+      <div class="layer-item {selectedObject === obj ? 'active' : ''} {hidden ? 'hidden' : ''}">
+        <button class="layer-select" type="button" onclick={() => selectLayer(obj)}>
+          <MdIcon icon={iconFor(obj)} />
+          <span class="text-truncate">{labelFor(obj)}</span>
+        </button>
+        <span class="layer-index text-secondary small">{objects.length - i}</span>
+        <button
+          class="layer-vis"
+          type="button"
+          title={hidden ? $tr("ui.layers.show") : $tr("ui.layers.hide")}
+          onclick={(e) => toggleVisible(obj, e)}>
+          <MdIcon icon={hidden ? "visibility_off" : "visibility"} />
+        </button>
+      </div>
     {/each}
   {/if}
 </div>

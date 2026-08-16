@@ -223,7 +223,7 @@ body {
 
 .modal-footer {
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 0.35rem;
   justify-content: flex-start;
 }
 
@@ -382,21 +382,21 @@ body {
 
 .tool-btn {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  justify-content: center;
-  gap: 0.1rem;
+  justify-content: flex-start;
+  gap: 0.4rem;
   width: 100%;
-  min-height: 2.7rem;
-  padding: 0.22rem 0.15rem;
+  min-height: 2.4rem;
+  padding: 0.3rem 0.45rem;
   border: 1px solid transparent;
   border-radius: var(--nb-radius-sm);
   background: transparent;
   color: var(--nb-text);
-  font-size: 0.62rem;
+  font-size: 0.72rem;
   font-weight: 650;
   line-height: 1.1;
-  text-align: center;
+  text-align: left;
 }
 
 .tool-btn:hover,
@@ -415,8 +415,47 @@ body {
 }
 
 .tool-btn .mdi {
-  font-size: 1.35rem;
+  font-size: 1.2rem;
   line-height: 1;
+  flex: 0 0 auto;
+}
+
+.tool-btn-label {
+  white-space: nowrap;
+}
+
+.form-range {
+  height: 1.5rem;
+  padding: 0;
+}
+
+.form-range::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--nb-surface-3);
+}
+
+.form-range::-webkit-slider-thumb {
+  width: 1.1rem;
+  height: 1.1rem;
+  margin-top: -0.32rem;
+  background: var(--nb-accent);
+  border: 0;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--nb-accent) 28%, transparent);
+}
+
+.form-range::-moz-range-track {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--nb-surface-3);
+}
+
+.form-range::-moz-range-thumb {
+  width: 1.1rem;
+  height: 1.1rem;
+  background: var(--nb-accent);
+  border: 0;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--nb-accent) 28%, transparent);
 }
 
 .canvas-stage {
@@ -483,7 +522,7 @@ body {
   min-height: 0;
   border-left: 1px solid var(--nb-border);
   background: var(--nb-surface);
-  overflow: auto;
+  overflow: hidden;
 }
 
 .inspector-section {
@@ -545,15 +584,56 @@ body {
 .layer-item {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.25rem;
   width: 100%;
-  padding: 0.4rem 0.5rem;
+  padding: 0.2rem 0.3rem 0.2rem 0.4rem;
   border: 1px solid transparent;
   border-radius: var(--nb-radius-sm);
   background: transparent;
   color: var(--nb-text);
   text-align: left;
   font-size: 0.8rem;
+}
+
+.layer-select {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+  flex: 1;
+  padding: 0.25rem 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  font-size: inherit;
+}
+
+.layer-index {
+  flex: 0 0 auto;
+}
+
+.layer-vis {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 1.85rem;
+  height: 1.85rem;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--nb-muted);
+}
+
+.layer-vis:hover {
+  background: var(--nb-surface-3);
+  color: var(--nb-text);
+}
+
+.layer-item.hidden {
+  opacity: 0.45;
 }
 
 .layer-item:hover {
@@ -619,6 +699,19 @@ body {
   flex-direction: column;
   min-height: 0;
   flex: 1;
+  overflow: hidden;
+}
+
+.inspector-props {
+  flex: 42 1 0;
+  max-height: 42%;
+  min-height: 0;
+  overflow: auto;
+}
+
+.inspector-layers {
+  flex: 58 1 0;
+  min-height: 0;
   overflow: auto;
 }
 
@@ -741,14 +834,16 @@ body {
   }
 
   .tool-btn {
-    width: 2.75rem;
-    min-height: 2.75rem;
+    width: auto;
+    min-width: auto;
+    min-height: 2.5rem;
     flex: 0 0 auto;
-    padding: 0.15rem;
+    padding: 0.25rem 0.5rem;
   }
 
   .tool-btn-label {
-    display: none;
+    display: inline;
+    white-space: nowrap;
   }
 
   .tools-rail .tool-imports {
@@ -760,9 +855,9 @@ body {
   }
 
   .tools-rail .tool-import-btn {
-    width: 2.75rem;
-    min-height: 2.75rem;
-    padding: 0.15rem;
+    width: auto;
+    min-height: 2.5rem;
+    padding: 0.25rem 0.5rem;
     border: 1px solid transparent;
     background: transparent;
     color: var(--nb-text);
@@ -863,6 +958,12 @@ body {
   .mobile-inspector-open .inspector-body {
     display: flex;
     flex-direction: column;
+  }
+
+  .inspector-props,
+  .inspector-layers {
+    flex: 1 1 auto;
+    overflow: auto;
   }
 
   .mobile-tab-layers .inspector-props,

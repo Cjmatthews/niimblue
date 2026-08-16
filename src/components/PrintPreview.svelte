@@ -683,7 +683,7 @@
   .input-group .form-range {
     flex-grow: 1;
     width: 1%;
-    height: unset;
+    height: 1.5rem;
     padding: 0 1rem;
   }
 </style>
