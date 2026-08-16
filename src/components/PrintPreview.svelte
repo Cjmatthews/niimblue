@@ -609,32 +609,33 @@
           onClick={toggleSavedProp} />
       </div>
 
-      <div class="input-group input-group-sm">
-        <span class="input-group-text">{$tr("preview.offset")}</span>
-        {#if offsetWarning}
-          <span class="input-group-text text-warning" title={offsetWarning}><MdIcon icon="warning" /></span>
-        {/if}
-        <span class="input-group-text"><MdIcon icon="unfold_more" class="r-90" /></span>
-        <input
-          class="form-control"
-          type="number"
-          bind:value={offset.x}
-          onchange={() => updateSavedProp("offset", offset, true)} />
-        <span class="input-group-text"><MdIcon icon="unfold_more" /></span>
-        <input
-          class="form-control"
-          type="number"
-          bind:value={offset.y}
-          onchange={() => updateSavedProp("offset", offset, true)} />
+      <div class="preview-offset">
+        <div class="input-group input-group-sm">
+          <span class="input-group-text">{$tr("preview.offset")}</span>
+          {#if offsetWarning}
+            <span class="input-group-text text-warning" title={offsetWarning}><MdIcon icon="warning" /></span>
+          {/if}
+          <span class="input-group-text"><MdIcon icon="unfold_more" class="r-90" /></span>
+          <input
+            class="form-control"
+            type="number"
+            bind:value={offset.x}
+            onchange={() => updateSavedProp("offset", offset, true)} />
+          <span class="input-group-text"><MdIcon icon="unfold_more" /></span>
+          <input
+            class="form-control"
+            type="number"
+            bind:value={offset.y}
+            onchange={() => updateSavedProp("offset", offset, true)} />
+          <ParamLockButton propName="offset" value={offset} savedValue={savedProps.offset} onClick={toggleSavedProp} />
+        </div>
         <select
-          class="form-select"
+          class="form-select form-select-sm"
           bind:value={offset.offsetType}
           onchange={() => updateSavedProp("offset", offset, true)}>
           <option value="inner">{$tr("preview.offset.inner")}</option>
           <option value="outer">{$tr("preview.offset.outer")}</option>
         </select>
-
-        <ParamLockButton propName="offset" value={offset} savedValue={savedProps.offset} onClick={toggleSavedProp} />
       </div>
     </div>
   </div>

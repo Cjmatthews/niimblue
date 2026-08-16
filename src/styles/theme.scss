@@ -783,6 +783,16 @@ body {
   overflow: auto;
 }
 
+.preview-offset {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.preview-offset .form-select {
+  width: 100%;
+}
+
 .modal-dialog-tall {
   width: min(72rem, calc(100vw - 1rem));
   max-width: min(72rem, calc(100vw - 1rem));
