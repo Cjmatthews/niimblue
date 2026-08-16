@@ -184,6 +184,20 @@
     }
   };
 
+  const applyZplLabelSize = (size: { width: number; height: number }) => {
+    if (!fabricCanvas) return;
+    if (size.width === labelProps.size.width && size.height === labelProps.size.height) return;
+    labelProps = { ...labelProps, size };
+    fabricCanvas.setDimensions(labelProps.size);
+    fabricCanvas.setLabelProps(labelProps);
+    fabricCanvas.virtualZoom(fabricCanvas.getVirtualZoom());
+    try {
+      LocalStoragePersistence.saveLastLabelProps(labelProps);
+    } catch (e) {
+      Toasts.zodErrors(e, "Label parameters save error:");
+    }
+  };
+
   const exportCurrentLabel = (): ExportedLabelTemplate => {
     return FileUtils.makeExportedLabel(fabricCanvas!, labelProps, csvEnabled);
   };
@@ -636,6 +650,7 @@
       {zplImageReady}
       {pdfImageReady}
       canvas={fabricCanvas}
+      onZplLabelSize={applyZplLabelSize}
       onZplObjectsImported={() => {
         undo.push(fabricCanvas!, labelProps);
         editRevision++;

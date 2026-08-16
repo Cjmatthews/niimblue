@@ -2,6 +2,7 @@ import * as fabric from "fabric";
 import { ArUcoMarker } from "$/fabric-object/aruco";
 import { Barcode } from "$/fabric-object/barcode";
 import { QRCode } from "$/fabric-object/qrcode";
+import { packImageToGfa, rxToGbRounding } from "$/utils/zpl_graphics";
 
 export type ZplExportResult = {
   zpl: string;
@@ -49,32 +50,6 @@ const zplColor = (obj: fabric.FabricObject): "B" | "W" => (isFilledWhite(obj) ? 
 
 const isWhiteFill = (value: unknown): boolean =>
   value === "white" || value === "#fff" || value === "#ffffff";
-
-const packImageToGfa = (imageData: ImageData): string | undefined => {
-  const { width, height, data } = imageData;
-  if (width < 1 || height < 1) return undefined;
-
-  const bytesPerRow = Math.ceil(width / 8);
-  const rows: string[] = [];
-
-  for (let y = 0; y < height; y++) {
-    const row = new Uint8Array(bytesPerRow);
-    for (let x = 0; x < width; x++) {
-      const i = (y * width + x) * 4;
-      const alpha = data[i + 3] ?? 0;
-      if (alpha < 32) continue;
-      const gray = (data[i] ?? 0) * 0.299 + (data[i + 1] ?? 0) * 0.587 + (data[i + 2] ?? 0) * 0.114;
-      if (gray < 160) {
-        row[Math.floor(x / 8)] |= 0x80 >> x % 8;
-      }
-    }
-    rows.push([...row].map((b) => b.toString(16).toUpperCase().padStart(2, "0")).join(""));
-  }
-
-  const hex = rows.join("");
-  const total = bytesPerRow * height;
-  return `^GFA,${total},${total},${bytesPerRow},${hex}`;
-};
 
 const rasterizeObject = (obj: fabric.FabricObject): string | undefined => {
   try {
@@ -134,10 +109,22 @@ export const canvasToZpl = (canvas: fabric.Canvas): ZplExportResult => {
       continue;
     }
 
+    if (obj instanceof fabric.Ellipse) {
+      const width = Math.max(1, round(obj.getScaledWidth()));
+      const height = Math.max(1, round(obj.getScaledHeight()));
+      const thickness =
+        isFilledBlack(obj) || isFilledWhite(obj)
+          ? Math.round(Math.min(width, height) / 2)
+          : Math.max(1, round(obj.strokeWidth ?? 3));
+      lines.push(emitFo(obj), `^GE${width},${height},${thickness},${zplColor(obj)}^FS`);
+      continue;
+    }
+
     if (obj instanceof fabric.Rect) {
       const width = Math.max(1, round(obj.getScaledWidth()));
       const height = Math.max(1, round(obj.getScaledHeight()));
-      const rounding = round(obj.rx ?? 0);
+      const rx = (obj.rx ?? 0) * (obj.scaleX ?? 1);
+      const rounding = rxToGbRounding(width, height, rx);
       const thickness = isFilledBlack(obj) || isFilledWhite(obj) ? Math.min(width, height) : Math.max(1, round(obj.strokeWidth ?? 3));
       const ori = orientationFromAngle(obj.angle ?? 0);
       if (ori === "N") {
@@ -155,7 +142,15 @@ export const canvasToZpl = (canvas: fabric.Canvas): ZplExportResult => {
       } else if (width <= thickness * 2) {
         lines.push(emitFo(obj), `^GB${thickness},${height},${thickness},B,0^FS`);
       } else {
-        lines.push(emitFo(obj), `^GD${width},${height},${thickness},B,L^FS`);
+        let orientation: "L" | "R" = "L";
+        if (obj instanceof fabric.Polyline && obj.points && obj.points.length >= 2) {
+          const start = obj.points[0]!;
+          const end = obj.points[obj.points.length - 1]!;
+          orientation = (end.x - start.x) * (end.y - start.y) > 0 ? "R" : "L";
+        } else if (obj instanceof fabric.Line) {
+          orientation = ((obj.x2 ?? 0) - (obj.x1 ?? 0)) * ((obj.y2 ?? 0) - (obj.y1 ?? 0)) > 0 ? "R" : "L";
+        }
+        lines.push(emitFo(obj), `^GD${width},${height},${thickness},B,${orientation}^FS`);
       }
       continue;
     }

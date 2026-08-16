@@ -15,9 +15,10 @@
     variant?: "dropdown" | "rail";
     canvas?: CustomCanvas;
     onZplObjectsImported?: () => void;
+    onZplLabelSize?: (size: { width: number; height: number }) => void;
   }
 
-  let { onSubmit, labelProps, zplImageReady, pdfImageReady, variant = "dropdown", canvas, onZplObjectsImported }: Props =
+  let { onSubmit, labelProps, zplImageReady, pdfImageReady, variant = "dropdown", canvas, onZplObjectsImported, onZplLabelSize }: Props =
     $props();
 
   const tools: { type: OjectType; icon: MaterialIcon; key: TranslationKey }[] = [
@@ -48,7 +49,7 @@
     </button>
   {/each}
   <div class="tool-imports">
-    <ZplImportButton {labelProps} {canvas} onImageReady={zplImageReady} onObjectsImported={onZplObjectsImported} />
+    <ZplImportButton {labelProps} {canvas} onImageReady={zplImageReady} onObjectsImported={onZplObjectsImported} onLabelSize={onZplLabelSize} />
     <PdfImportButton {labelProps} onImageReady={pdfImageReady} />
   </div>
 {:else}
@@ -68,7 +69,7 @@
           </button>
         {/each}
 
-        <ZplImportButton {labelProps} {canvas} onImageReady={zplImageReady} onObjectsImported={onZplObjectsImported} />
+        <ZplImportButton {labelProps} {canvas} onImageReady={zplImageReady} onObjectsImported={onZplObjectsImported} onLabelSize={onZplLabelSize} />
 
         <PdfImportButton {labelProps} onImageReady={pdfImageReady} />
       </div>

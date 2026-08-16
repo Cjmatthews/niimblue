@@ -23,8 +23,8 @@
     if (obj instanceof Barcode) return "view_week";
     if (obj instanceof ArUcoMarker) return "grid_on";
     if (obj instanceof fabric.FabricImage) return "image";
-    if (obj instanceof fabric.Circle) return "radio_button_unchecked";
-    if (obj instanceof fabric.Line) return "remove";
+    if (obj instanceof fabric.Circle || obj instanceof fabric.Ellipse) return "radio_button_unchecked";
+    if (obj instanceof fabric.Line || obj instanceof fabric.Polyline) return "remove";
     if (obj instanceof fabric.Rect) return "crop_square";
     return "layers";
   };
@@ -35,8 +35,9 @@
     if (obj instanceof Barcode) return $tr("editor.objectpicker.barcode");
     if (obj instanceof ArUcoMarker) return $tr("editor.objectpicker.aruco");
     if (obj instanceof fabric.FabricImage) return $tr("editor.objectpicker.image");
+    if (obj instanceof fabric.Ellipse) return $tr("editor.objectpicker.ellipse");
     if (obj instanceof fabric.Circle) return $tr("editor.objectpicker.circle");
-    if (obj instanceof fabric.Line) return $tr("editor.objectpicker.line");
+    if (obj instanceof fabric.Line || obj instanceof fabric.Polyline) return $tr("editor.objectpicker.line");
     if (obj instanceof fabric.Rect) return $tr("editor.objectpicker.rectangle");
     return obj.type ?? "object";
   };

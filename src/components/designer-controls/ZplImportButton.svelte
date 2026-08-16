@@ -5,7 +5,7 @@
   import { tr } from "$/utils/i18n";
   import { Toasts } from "$/utils/toasts";
   import AppModal from "$/components/basic/AppModal.svelte";
-  import { addZplObjectsToCanvas, parseZpl } from "$/utils/zpl_import";
+  import { addZplObjectsToCanvas, parseZpl, renderZplToPngBlob, type ZplFidelity } from "$/utils/zpl_import";
   import { canvasToZpl } from "$/utils/zpl_export";
   import type { CustomCanvas } from "$/fabric-object/custom_canvas";
 
@@ -14,9 +14,10 @@
     canvas?: CustomCanvas;
     onImageReady: (img: Blob) => void;
     onObjectsImported?: () => void;
+    onLabelSize?: (size: { width: number; height: number }) => void;
   }
 
-  let { labelProps, canvas, onImageReady, onObjectsImported }: Props = $props();
+  let { labelProps, canvas, onImageReady, onObjectsImported, onLabelSize }: Props = $props();
   let modalRef = $state<AppModal | undefined>();
 
   const closeModal = () => {
@@ -78,7 +79,19 @@
     }
   };
 
-  const importAsObjects = () => {
+  const applyParsedLabelSize = (labelWidth?: number, labelHeight?: number): boolean => {
+    if (!canvas) return false;
+    const width = Math.max(1, Math.round(labelWidth ?? canvas.getWidth()));
+    const height = Math.max(1, Math.round(labelHeight ?? canvas.getHeight()));
+    if (width === canvas.getWidth() && height === canvas.getHeight()) {
+      return false;
+    }
+    canvas.setDimensions({ width, height });
+    onLabelSize?.({ width, height });
+    return true;
+  };
+
+  const importAsObjects = async (fidelity: ZplFidelity) => {
     if (!canvas) {
       Toasts.error("Canvas is not ready");
       return;
@@ -90,32 +103,44 @@
       return;
     }
 
+    importState = "processing";
     try {
-      const result = parseZpl(source);
+      const result = parseZpl(source, { fidelity });
       warnings = result.warnings;
 
       if (result.objects.length === 0) {
+        importState = "idle";
         return;
       }
 
-      const created = addZplObjectsToCanvas(canvas, result.objects);
+      const resized = applyParsedLabelSize(result.labelWidth, result.labelHeight);
+      const created = await addZplObjectsToCanvas(canvas, result.objects);
       if (created.length === 0) {
+        importState = "idle";
         return;
       }
 
       const overflow = created.some(
         (obj) =>
-          (obj.left ?? 0) + (obj.width ?? 0) > canvas.getWidth() ||
-          (obj.top ?? 0) + (obj.height ?? 0) > canvas.getHeight(),
+          (obj.left ?? 0) + (obj.getScaledWidth?.() ?? obj.width ?? 0) > canvas.getWidth() ||
+          (obj.top ?? 0) + (obj.getScaledHeight?.() ?? obj.height ?? 0) > canvas.getHeight(),
       );
       canvas.setActiveObject(created[created.length - 1]!);
       onObjectsImported?.();
       closeModal();
       Toasts.message($tr("editor.import.zpl.success").replace("{n}", String(created.length)));
-      if (overflow) {
+      if (resized) {
+        Toasts.message(
+          $tr("editor.import.zpl.resized")
+            .replace("{w}", String(canvas.getWidth()))
+            .replace("{h}", String(canvas.getHeight())),
+        );
+      } else if (overflow) {
         Toasts.message($tr("editor.import.zpl.overflow"));
       }
+      importState = "idle";
     } catch (e) {
+      importState = "error";
       Toasts.error(e);
     }
   };
@@ -127,35 +152,31 @@
       return;
     }
 
-    const mmToInchCoeff = 25.4;
-    const dpmm = 8;
-    const widthInches = labelProps.size.width / dpmm / mmToInchCoeff;
-    const heightInches = labelProps.size.height / dpmm / mmToInchCoeff;
-
     importState = "processing";
 
     try {
-      const response = await fetch(
-        `https://api.labelary.com/v1/printers/${dpmm}dpmm/labels/${widthInches}x${heightInches}/0/`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-            Accept: "image/png",
-            "X-Quality": "bitonal",
-          },
-          body: source,
-        },
-      );
-      if (response.ok) {
-        const img = await response.blob();
-        onImageReady(img);
-        importState = "idle";
-        closeModal();
-      } else {
+      const result = parseZpl(source);
+      warnings = result.warnings;
+      if (result.objects.length === 0) {
         importState = "error";
-        warnings = [$tr("editor.import.zpl.image_error")];
+        warnings = [$tr("editor.import.zpl.image_error"), ...result.warnings];
+        return;
       }
+
+      const width = Math.max(1, Math.round(result.labelWidth ?? labelProps.size.width));
+      const height = Math.max(1, Math.round(result.labelHeight ?? labelProps.size.height));
+      applyParsedLabelSize(result.labelWidth, result.labelHeight);
+
+      const img = await renderZplToPngBlob(result.objects, width, height);
+      if (!img) {
+        importState = "error";
+        warnings = [$tr("editor.import.zpl.image_error"), ...result.warnings];
+        return;
+      }
+
+      onImageReady(img);
+      importState = "idle";
+      closeModal();
     } catch (e) {
       importState = "error";
       Toasts.error(e);
@@ -218,9 +239,23 @@
             {/if}
             {$tr("editor.import.zpl.image")}
           </button>
-          <button class="btn btn-sm btn-primary" type="button" onclick={importAsObjects} title={$tr("editor.import.zpl.objects")}>
+          <button
+            class="btn btn-sm btn-secondary"
+            type="button"
+            disabled={importState === "processing"}
+            onclick={() => importAsObjects("simplified")}
+            title={$tr("editor.import.zpl.objects.simplified")}>
             <MdIcon icon="layers" />
-            {$tr("editor.import.zpl.objects")}
+            {$tr("editor.import.zpl.objects.simplified")}
+          </button>
+          <button
+            class="btn btn-sm btn-primary"
+            type="button"
+            disabled={importState === "processing"}
+            onclick={() => importAsObjects("exact")}
+            title={$tr("editor.import.zpl.objects.exact")}>
+            <MdIcon icon="layers" />
+            {$tr("editor.import.zpl.objects.exact")}
           </button>
         </div>
       </div>
