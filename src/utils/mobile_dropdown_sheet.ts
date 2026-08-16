@@ -6,8 +6,8 @@ type SheetState = {
   menu: HTMLElement;
   home: Node;
   nextSibling: ChildNode | null;
-  backdrop: HTMLElement;
-  closeBtn: HTMLButtonElement;
+  backdrop?: HTMLElement;
+  closeBtn?: HTMLButtonElement;
 };
 
 const sheets = new WeakMap<HTMLElement, SheetState>();
@@ -23,39 +23,57 @@ const findMenu = (toggle: HTMLElement): HTMLElement | null => {
 const onShow = (e: Event) => {
   const toggle = e.target;
   if (!(toggle instanceof HTMLElement)) return;
-  if (!isMobile()) return;
-  if (toggle.closest(".dropdown-menu-sheet") || toggle.closest(".modal")) return;
+  if (toggle.closest(".dropdown-menu-sheet") || toggle.closest(".dropdown-menu-rail-portal") || toggle.closest(".modal")) {
+    return;
+  }
 
   const menu = findMenu(toggle);
   const home = menu?.parentNode;
   if (!menu || !home) return;
 
   const instance = Dropdown.getInstance(toggle);
-  const backdrop = document.createElement("div");
-  backdrop.className = "dropdown-sheet-backdrop";
-  backdrop.addEventListener("click", () => instance?.hide());
+  const inRail = Boolean(toggle.closest(".tools-rail"));
 
-  const closeBtn = document.createElement("button");
-  closeBtn.type = "button";
-  closeBtn.className = "btn-close dropdown-sheet-close";
-  closeBtn.setAttribute("aria-label", "Close");
-  closeBtn.addEventListener("click", (ev) => {
-    ev.preventDefault();
-    ev.stopPropagation();
-    instance?.hide();
-  });
+  if (isMobile()) {
+    const backdrop = document.createElement("div");
+    backdrop.className = "dropdown-sheet-backdrop";
+    backdrop.addEventListener("click", () => instance?.hide());
 
+    const closeBtn = document.createElement("button");
+    closeBtn.type = "button";
+    closeBtn.className = "btn-close dropdown-sheet-close";
+    closeBtn.setAttribute("aria-label", "Close");
+    closeBtn.addEventListener("click", (ev) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      instance?.hide();
+    });
+
+    sheets.set(toggle, {
+      menu,
+      home,
+      nextSibling: menu.nextSibling,
+      backdrop,
+      closeBtn,
+    });
+
+    document.body.append(backdrop, menu);
+    menu.classList.add("dropdown-menu-sheet");
+    menu.prepend(closeBtn);
+    return;
+  }
+
+  if (!inRail) return;
+
+  // Keep rail menus above the canvas: overflow/stacking on the rail clips them
+  // after Fabric creates a stacking context on the workspace.
   sheets.set(toggle, {
     menu,
     home,
     nextSibling: menu.nextSibling,
-    backdrop,
-    closeBtn,
   });
-
-  document.body.append(backdrop, menu);
-  menu.classList.add("dropdown-menu-sheet");
-  menu.prepend(closeBtn);
+  document.body.append(menu);
+  menu.classList.add("dropdown-menu-rail-portal");
 };
 
 const onHidden = (e: Event) => {
@@ -66,10 +84,10 @@ const onHidden = (e: Event) => {
   if (!state) return;
   sheets.delete(toggle);
 
-  state.closeBtn.remove();
-  state.menu.classList.remove("dropdown-menu-sheet");
+  state.closeBtn?.remove();
+  state.menu.classList.remove("dropdown-menu-sheet", "dropdown-menu-rail-portal");
   state.home.insertBefore(state.menu, state.nextSibling);
-  state.backdrop.remove();
+  state.backdrop?.remove();
 };
 
 const initRailDropdowns = () => {

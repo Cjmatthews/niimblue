@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { onMount } from "svelte";
+  import Dropdown from "bootstrap/js/dist/dropdown";
   import { tr } from "$/utils/i18n";
   import { csvParse } from "d3-dsv";
   import MdIcon from "$/components/basic/MdIcon.svelte";
@@ -13,6 +15,7 @@
 
   let { enabled = $bindable(), onPlaceholderPicked, labeled = false }: Props = $props();
 
+  let toggleEl: HTMLButtonElement | undefined;
   let placeholders = $state<string[]>([]);
   let rows = $state<number>(0);
 
@@ -25,10 +28,23 @@
   $effect(() => {
     parse($csvData);
   });
+
+  const hideMenu = () => {
+    if (toggleEl) Dropdown.getInstance(toggleEl)?.hide();
+  };
+
+  onMount(() => {
+    // Canvas pan calls preventDefault on pointerdown, which swallows the click
+    // Bootstrap uses for auto-close. Close when the workspace is pressed instead.
+    const stage = document.querySelector(".canvas-stage");
+    stage?.addEventListener("pointerdown", hideMenu);
+    return () => stage?.removeEventListener("pointerdown", hideMenu);
+  });
 </script>
 
 <div class="dropdown dropend">
   <button
+    bind:this={toggleEl}
     class={labeled ? `tool-btn ${enabled ? "active" : ""}` : `btn btn-sm btn-${enabled ? "warning" : "secondary"}`}
     data-bs-toggle="dropdown"
     data-bs-auto-close="outside"

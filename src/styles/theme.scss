@@ -275,6 +275,10 @@ body {
   z-index: 1080;
 }
 
+.dropdown-menu.dropdown-menu-rail-portal {
+  z-index: 1080;
+}
+
 .dropdown-menu.dropdown-menu-sheet {
   position: fixed !important;
   inset: auto !important;
@@ -400,6 +404,8 @@ body {
 
 .tools-rail {
   grid-area: tools;
+  position: relative;
+  z-index: 6;
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -521,6 +527,7 @@ body {
 .canvas-stage {
   grid-area: canvas;
   position: relative;
+  z-index: 1;
   min-width: 0;
   min-height: 0;
   display: flex;
