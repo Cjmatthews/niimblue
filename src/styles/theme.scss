@@ -700,13 +700,31 @@ body {
   color: var(--nb-muted);
 }
 
+.layer-vis.on {
+  color: var(--nb-muted);
+}
+
+.layer-vis.off {
+  color: var(--nb-muted);
+  opacity: 0.45;
+}
+
 .layer-vis:hover {
   background: var(--nb-surface-3);
   color: var(--nb-text);
+  opacity: 1;
 }
 
-.layer-item.hidden {
-  opacity: 0.45;
+.layer-item.is-hidden {
+  color: var(--nb-muted);
+}
+
+.layer-item.is-hidden .layer-select {
+  opacity: 0.4;
+}
+
+.layer-item.is-hidden .layer-index {
+  opacity: 0.4;
 }
 
 .layer-item:hover {
@@ -719,6 +737,14 @@ body {
 }
 
 .layer-item .mdi {
+  color: inherit;
+}
+
+.layer-select .mdi {
+  color: var(--nb-muted);
+}
+
+.layer-item.is-hidden .layer-select .mdi {
   color: var(--nb-muted);
 }
 

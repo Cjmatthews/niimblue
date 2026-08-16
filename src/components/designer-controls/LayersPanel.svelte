@@ -47,6 +47,8 @@
     return obj.type ?? "object";
   };
 
+  let visEpoch = $state(0);
+
   const selectLayer = (obj: fabric.FabricObject) => {
     if (!canvas) return;
     canvas.setActiveObject(obj);
@@ -55,9 +57,10 @@
 
   const toggleVisible = (obj: fabric.FabricObject, e: MouseEvent) => {
     e.stopPropagation();
-    obj.set("visible", obj.visible === false);
+    obj.set({ visible: obj.visible === false });
     obj.dirty = true;
     canvas?.requestRenderAll();
+    visEpoch += 1;
     onVisibilityChange?.();
   };
 </script>
@@ -67,15 +70,15 @@
     <div class="text-secondary small">{$tr("ui.layers.empty")}</div>
   {:else}
     {#each objects as obj, i (obj)}
-      {@const hidden = obj.visible === false}
-      <div class="layer-item {selectedObject === obj ? 'active' : ''} {hidden ? 'hidden' : ''}">
+      {@const hidden = visEpoch >= 0 && obj.visible === false}
+      <div class="layer-item {selectedObject === obj ? 'active' : ''} {hidden ? 'is-hidden' : ''}">
         <button class="layer-select" type="button" onclick={() => selectLayer(obj)}>
           <MdIcon icon={iconFor(obj)} />
           <span class="text-truncate">{labelFor(obj)}</span>
         </button>
         <span class="layer-index text-secondary small">{objects.length - i}</span>
         <button
-          class="layer-vis"
+          class="layer-vis {hidden ? 'off' : 'on'}"
           type="button"
           title={hidden ? $tr("ui.layers.show") : $tr("ui.layers.hide")}
           onclick={(e) => toggleVisible(obj, e)}>
@@ -85,3 +88,25 @@
     {/each}
   {/if}
 </div>
+
+<style>
+  .layer-item.is-hidden .layer-select,
+  .layer-item.is-hidden .layer-index {
+    color: var(--nb-muted);
+    opacity: 0.4;
+  }
+
+  .layer-item.is-hidden .layer-select :global(.mdi) {
+    color: var(--nb-muted);
+  }
+
+  .layer-vis.on :global(.mdi) {
+    color: var(--nb-muted);
+  }
+
+  .layer-vis.off :global(.mdi) {
+    color: var(--nb-muted);
+    opacity: 0.35;
+  }
+</style>
+
