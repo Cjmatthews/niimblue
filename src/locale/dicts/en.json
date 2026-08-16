@@ -225,6 +225,8 @@
     "preview.threshold": "Threshold",
     "preview.strength": "Strength",
     "preview.serpentine": "Serpentine",
+    "preview.invert": "Invert",
+    "preview.mirror": "Mirror",
     "preview.title": "Print preview",
     "fonts.title": "Custom fonts",
     "fonts.add": "Add",

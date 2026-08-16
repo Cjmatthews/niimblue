@@ -793,6 +793,35 @@ body {
   width: 100%;
 }
 
+.preview-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.15rem;
+  min-height: calc(1.5em + 0.5rem + 2px);
+  padding: 0.2rem 0.4rem;
+  border: 1px solid var(--nb-border-strong);
+  border-radius: var(--nb-radius-sm);
+  background: var(--nb-surface);
+  color: var(--nb-muted);
+}
+
+.preview-toggle.on {
+  background: color-mix(in srgb, var(--nb-accent) 22%, var(--nb-surface-2));
+  border-color: color-mix(in srgb, var(--nb-accent) 50%, transparent);
+  color: #fff;
+}
+
+.preview-toggle.off {
+  background: var(--nb-surface);
+  border-color: var(--nb-border-strong);
+  color: var(--nb-muted);
+}
+
+.preview-toggle.off .mdi {
+  opacity: 0.45;
+}
+
 .modal-dialog-tall {
   width: min(72rem, calc(100vw - 1rem));
   max-width: min(72rem, calc(100vw - 1rem));

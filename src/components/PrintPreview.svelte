@@ -456,16 +456,22 @@
           onClick={toggleSavedProp} />
 
         <button
-          class="btn btn-sm {postProcessInvert ? 'btn-secondary' : 'btn-outline-secondary'}"
+          type="button"
+          class="btn btn-sm preview-toggle {postProcessInvert ? 'on' : 'off'}"
+          aria-pressed={postProcessInvert}
+          title={$tr("preview.invert")}
           onclick={() => {
             postProcessInvert = !postProcessInvert;
             updatePreview();
           }}>
-          <MdIcon icon="invert_colors" />
+          <MdIcon icon={postProcessInvert ? "invert_colors" : "invert_colors_off"} />
         </button>
 
         <button
-          class="btn btn-sm {postProcessMirror ? 'btn-secondary' : 'btn-outline-secondary'}"
+          type="button"
+          class="btn btn-sm preview-toggle {postProcessMirror ? 'on' : 'off'}"
+          aria-pressed={postProcessMirror}
+          title={$tr("preview.mirror")}
           onclick={() => {
             postProcessMirror = !postProcessMirror;
             updatePreview();
@@ -518,7 +524,9 @@
             onClick={toggleSavedProp} />
 
           <button
-            class="btn btn-sm {serpentineValue ? 'btn-secondary' : 'btn-outline-secondary'}"
+            type="button"
+            class="btn btn-sm preview-toggle {serpentineValue ? 'on' : 'off'}"
+            aria-pressed={serpentineValue}
             title={$tr("preview.serpentine")}
             onclick={() => {
               serpentineValue = !serpentineValue;
