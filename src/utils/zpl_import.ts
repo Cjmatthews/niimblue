@@ -3,6 +3,7 @@ import { OBJECT_DEFAULTS, OBJECT_DEFAULTS_TEXT, OBJECT_DEFAULTS_VECTOR } from "$
 import { Barcode } from "$/fabric-object/barcode";
 import { QRCode } from "$/fabric-object/qrcode";
 import { TextboxExt } from "$/fabric-object/textbox-ext";
+import { CanvasUtils } from "$/utils/canvas_utils";
 import { decodeGfaArgs, type RgbaImage, type ZplObjectSpec } from "zpl-parser";
 
 export type { ZplFidelity, ZplObjectSpec, ZplParseResult, ZplTone } from "zpl-parser";
@@ -173,6 +174,8 @@ export const addZplObjectsToCanvas = async (
       originX: "left",
       originY: "top",
     });
+    // ZPL size is mag×21 (often odd); same even-size normalize as JSON load / resize.
+    CanvasUtils.fixFabricObjectScale(obj);
     canvas.add(obj);
     created.push(obj);
   }
