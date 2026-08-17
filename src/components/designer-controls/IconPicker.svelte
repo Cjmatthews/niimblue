@@ -170,7 +170,7 @@
 
   :global(.dropdown-menu-sheet) .icons {
     flex: 1 1 auto;
-    min-height: 10rem;
+    min-height: 0;
     max-height: none;
     overflow-y: auto;
   }

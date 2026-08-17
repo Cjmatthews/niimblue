@@ -54,7 +54,7 @@
   </button>
   <div class="dropdown-menu">
     <h6 class="dropdown-header">{$tr("params.csv.title")}</h6>
-    <div class="p-3 text-body-secondary">
+    <div class="csv-sheet-body p-3 text-body-secondary">
       <label class="csv-enable-bar {enabled ? 'on' : ''}">
         <span>{$tr("params.csv.use")}</span>
         <span class="form-check form-switch mb-0">
@@ -90,7 +90,20 @@
   }
   textarea.dsv {
     font-family: monospace;
-    min-height: 240px;
+    min-height: 8rem;
+    height: 14rem;
+  }
+
+  :global(.dropdown-menu-sheet) .csv-sheet-body {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  :global(.dropdown-menu-sheet) textarea.dsv {
+    flex: 1 1 auto;
+    min-height: 8rem;
+    height: auto;
   }
 
   .csv-enable-bar {

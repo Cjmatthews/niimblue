@@ -401,7 +401,9 @@
           </button>
         {/if}
 
-        <canvas class="print-start-{labelProps.printDirection}" bind:this={previewCanvas}></canvas>
+        <div class="preview-canvas-frame">
+          <canvas class="print-start-{labelProps.printDirection}" bind:this={previewCanvas}></canvas>
+        </div>
 
         {#if pagesTotal > 1}
           <button disabled={printState !== "idle"} class="btn btn-sm btn-secondary preview-page-btn" onclick={pageUp}>
@@ -681,6 +683,8 @@
   canvas {
     image-rendering: pixelated;
     border: 1px solid #6d6d6d;
+    min-width: 0;
+    min-height: 0;
     max-width: 100%;
     max-height: 100%;
     width: auto;

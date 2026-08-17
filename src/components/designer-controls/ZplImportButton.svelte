@@ -190,21 +190,23 @@
 </button>
 
 {#if show}
-  <AppModal title={$tr("editor.import.zpl.title")} bind:show bind:this={modalRef} size="lg">
-    <p class="text-secondary small mb-2">{$tr("editor.import.zpl.hint")}</p>
-    <textarea
-      class="form-control font-monospace zpl-input"
-      rows="12"
-      placeholder={placeholder}
-      bind:value={zplText}></textarea>
+  <AppModal title={$tr("editor.import.zpl.title")} bind:show bind:this={modalRef} size="lg" tall>
+    <div class="zpl-modal-body">
+      <p class="text-secondary small mb-2">{$tr("editor.import.zpl.hint")}</p>
+      <textarea
+        class="form-control font-monospace zpl-input"
+        rows="8"
+        placeholder={placeholder}
+        bind:value={zplText}></textarea>
 
-    {#if warnings.length > 0}
-      <div class="alert alert-warning mt-2 mb-0" role="alert">
-        {#each warnings as warning (warning)}
-          <div>{warning}</div>
-        {/each}
-      </div>
-    {/if}
+      {#if warnings.length > 0}
+        <div class="alert alert-warning mt-2 mb-0" role="alert">
+          {#each warnings as warning (warning)}
+            <div>{warning}</div>
+          {/each}
+        </div>
+      {/if}
+    </div>
 
     {#snippet footer()}
       <div class="zpl-footer-actions">
@@ -264,9 +266,20 @@
 {/if}
 
 <style>
+  .zpl-modal-body {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    flex: 1 1 auto;
+    height: 100%;
+  }
+
   .zpl-input {
     font-size: 0.82rem;
-    min-height: 220px;
+    flex: 1 1 auto;
+    min-height: 8rem;
+    height: auto;
+    resize: none;
   }
 
   .zpl-footer-actions {
