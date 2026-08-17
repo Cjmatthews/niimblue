@@ -51,19 +51,22 @@
   </main>
 
   <footer class="app-footer">
-    <div class="d-flex align-items-center gap-2 flex-wrap">
+    <div class="d-flex align-items-center gap-2 flex-nowrap">
       <select class="form-select form-select-sm text-secondary d-inline-block w-auto" bind:value={$locale}>
         {#each Object.entries(locales) as [key, name] (key)}
           <option value={key}>{name}</option>
         {/each}
       </select>
-      <button class="btn btn-sm btn-secondary icon-btn" onclick={() => (shortcutsShow = true)} title={$tr("ui.shortcuts")}>
+      <button
+        class="btn btn-sm btn-secondary icon-btn d-none d-lg-inline-flex"
+        onclick={() => (shortcutsShow = true)}
+        title={$tr("ui.shortcuts")}>
         <MdIcon icon="help_outline" />
         <span class="d-none d-sm-inline">{$tr("ui.shortcuts")}</span>
       </button>
     </div>
 
-    <div class="d-flex align-items-center gap-2 flex-wrap justify-content-end footer-meta">
+    <div class="d-none d-lg-flex align-items-center gap-2 flex-nowrap justify-content-end footer-meta">
       {#if appCommit}
         <a class="ghost-link" href="https://github.com/MultiMote/niimblue/commit/{appCommit}">
           {appCommit.slice(0, 6)}

@@ -264,11 +264,15 @@ export class CustomCanvas extends fabric.Canvas {
     requestAnimationFrame(apply);
   }
 
-  public fitToViewport(padding = 20) {
+  public fitToViewport(padding: number | { top?: number; right?: number; bottom?: number; left?: number } = 20) {
     const stage = this.getViewport();
     if (!stage) return;
-    const availW = stage.clientWidth - padding * 2;
-    const availH = stage.clientHeight - padding * 2;
+    const resolved =
+      typeof padding === "number"
+        ? { top: padding, right: padding, bottom: padding, left: padding }
+        : { top: 20, right: 20, bottom: 20, left: 20, ...padding };
+    const availW = stage.clientWidth - resolved.left - resolved.right;
+    const availH = stage.clientHeight - resolved.top - resolved.bottom;
     if (availW <= 0 || availH <= 0) return;
     const fit = Math.min(1, availW / this.getWidth(), availH / this.getHeight());
     this.virtualZoom(fit);

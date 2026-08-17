@@ -59,6 +59,11 @@
   let designerReady = false;
   let mobilePropertyPanelOpen = $state(false);
   let mobilePropertyPanelTab = $state<"properties" | "objects">("properties");
+  let designerEl = $state<HTMLDivElement | undefined>(undefined);
+  let propertyPanelEl = $state<HTMLElement | undefined>(undefined);
+
+  const MOBILE_BREAK = 960;
+  const MOBILE_STAGE_PADDING = 8;
 
   const undo = new UndoRedo();
 
@@ -548,12 +553,48 @@
   });
 
   $effect(() => {
-    if (windowWidth === 0 || windowWidth > 960) return;
+    if (windowWidth === 0 || windowWidth > MOBILE_BREAK) return;
     if (selectedCount > 0) {
       mobilePropertyPanelTab = "properties";
     } else {
       mobilePropertyPanelOpen = false;
     }
+  });
+
+  const syncMobileCanvasLayout = () => {
+    if (!designerEl || !propertyPanelEl || !fabricCanvas) return;
+    if (windowWidth === 0 || windowWidth > MOBILE_BREAK) return;
+
+    const panelH = propertyPanelEl.getBoundingClientRect().height;
+    designerEl.style.setProperty("--nb-mobile-panel-h", `${panelH}px`);
+
+    const bottomInset = panelH + MOBILE_STAGE_PADDING;
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        fabricCanvas?.fitToViewport({
+          top: MOBILE_STAGE_PADDING,
+          right: MOBILE_STAGE_PADDING,
+          bottom: bottomInset,
+          left: MOBILE_STAGE_PADDING,
+        });
+      });
+    });
+  };
+
+  $effect(() => {
+    if (windowWidth === 0 || windowWidth > MOBILE_BREAK) return;
+    if (!fabricCanvas || !designerEl || !propertyPanelEl) return;
+    mobilePropertyPanelOpen;
+    mobilePropertyPanelTab;
+    selectedCount;
+    syncMobileCanvasLayout();
+  });
+
+  $effect(() => {
+    if (!propertyPanelEl) return;
+    const observer = new ResizeObserver(() => syncMobileCanvasLayout());
+    observer.observe(propertyPanelEl);
+    return () => observer.disconnect();
   });
 
   const openMobilePropertyPanel = (tab: "properties" | "objects") => {
@@ -569,6 +610,7 @@
 <svelte:window bind:innerWidth={windowWidth} onkeydown={onKeyDown} onpaste={onPaste} />
 
 <div
+  bind:this={designerEl}
   class="designer"
   class:mobile-property-panel-open={mobilePropertyPanelOpen}
   class:mobile-has-selection={selectedCount > 0}
@@ -665,7 +707,7 @@
     </div>
   </div>
 
-  <aside class="property-panel">
+  <aside class="property-panel" bind:this={propertyPanelEl}>
     <div class="property-panel-handle">
       <button
         type="button"

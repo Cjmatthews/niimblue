@@ -1,55 +1,7 @@
-:root,
-[data-bs-theme="dark"] {
-  --nb-bg: #0b0e14;
-  --nb-workspace: #10141c;
-  --nb-surface: #161b26;
-  --nb-surface-2: #1c2332;
-  --nb-surface-3: #242c3d;
-  --nb-border: rgba(232, 236, 241, 0.08);
-  --nb-border-strong: rgba(232, 236, 241, 0.14);
-  --nb-text: #eef1f6;
-  --nb-muted: #93a0b5;
-  --nb-accent: #4d9fff;
-  --nb-accent-2: #ff5a52;
-  --nb-success: #3ddc97;
-  --nb-warning: #f5c15a;
-  --nb-danger: #ff6b6b;
-  --nb-radius: 10px;
-  --nb-radius-sm: 8px;
-  --nb-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
-  --nb-header-h: 56px;
-  --nb-footer-h: 40px;
-  --nb-rail-w: 88px;
-  --nb-property-panel-w: 320px;
-  --nb-scroll-size: 8px;
-  --nb-scroll-thumb: rgba(147, 160, 181, 0.42);
-  --nb-scroll-thumb-hover: #6e9fd7;
-  --nb-header-bg: rgba(22, 27, 38, 0.88);
-  --nb-topbar-bg: rgba(22, 27, 38, 0.7);
-  --nb-accent-subtle: #263a59;
-  --nb-accent-soft: #243854;
-  --nb-accent-strong: #27405e;
-  --nb-accent-border: rgba(77, 159, 255, 0.45);
-  --nb-accent-border-soft: rgba(77, 159, 255, 0.4);
-  --nb-accent-border-strong: rgba(77, 159, 255, 0.5);
-  --nb-focus-ring: rgba(77, 159, 255, 0.28);
+@import "tokens";
+@import "mixins";
 
-  --bs-body-bg: var(--nb-bg);
-  --bs-body-color: var(--nb-text);
-  --bs-secondary-color: var(--nb-muted);
-  --bs-tertiary-bg: var(--nb-surface-2);
-  --bs-secondary-bg: var(--nb-surface);
-  --bs-border-color: var(--nb-border);
-  --bs-border-color-translucent: var(--nb-border);
-  --bs-primary: var(--nb-accent);
-  --bs-primary-rgb: 77, 159, 255;
-  --bs-danger: var(--nb-danger);
-  --bs-warning: var(--nb-warning);
-  --bs-success: var(--nb-success);
-  --bs-link-color: var(--nb-accent);
-  --bs-emphasis-color: #fff;
-  --bs-body-font-family: "Noto Sans Variable", sans-serif;
-}
+@include nb-root-vars;
 
 html,
 body,
@@ -154,6 +106,10 @@ body {
   background: var(--nb-surface);
   color: var(--nb-muted);
   font-size: 0.75rem;
+
+  .footer-meta {
+    min-width: 0;
+  }
 }
 
 .brand-niim {
@@ -382,6 +338,40 @@ body {
   min-width: 0;
   min-height: 0;
   flex: 1;
+
+  .canvas-stage {
+    grid-area: canvas;
+    position: relative;
+    z-index: 1;
+    min-width: 0;
+    min-height: 0;
+    display: flex;
+    align-items: safe center;
+    justify-content: safe center;
+    overflow: auto;
+    overscroll-behavior: contain;
+    background-color: var(--nb-workspace);
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+    background-size: 22px 22px;
+
+    &.is-panning,
+    &.is-panning * {
+      cursor: grabbing !important;
+      user-select: none;
+    }
+  }
+
+  .property-panel {
+    grid-area: property-panel;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    border-left: 1px solid var(--nb-border);
+    background: var(--nb-surface);
+    overflow: hidden;
+  }
 }
 
 .designer-topbar {
@@ -532,30 +522,6 @@ body {
   box-shadow: 0 0 0 3px var(--nb-focus-ring);
 }
 
-.canvas-stage {
-  grid-area: canvas;
-  position: relative;
-  z-index: 1;
-  min-width: 0;
-  min-height: 0;
-  display: flex;
-  align-items: safe center;
-  justify-content: safe center;
-  overflow: auto;
-  overscroll-behavior: contain;
-  background-color: var(--nb-workspace);
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
-  background-size: 22px 22px;
-}
-
-.canvas-stage.is-panning,
-.canvas-stage.is-panning * {
-  cursor: grabbing !important;
-  user-select: none;
-}
-
 .canvas-chrome {
   position: sticky;
   top: 0.6rem;
@@ -594,16 +560,6 @@ body {
 .canvas-wrapper canvas {
   image-rendering: pixelated;
   display: block;
-}
-
-.property-panel {
-  grid-area: property-panel;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  border-left: 1px solid var(--nb-border);
-  background: var(--nb-surface);
-  overflow: hidden;
 }
 
 .property-panel-section {
@@ -931,7 +887,7 @@ body {
   overflow: auto;
 }
 
-@media (max-width: 960px) {
+@media (max-width: $nb-break-mobile) {
   html,
   body,
   #app {
@@ -975,11 +931,6 @@ body {
     padding-bottom: max(0.2rem, env(safe-area-inset-bottom));
   }
 
-  .app-footer .icon-btn,
-  .footer-meta {
-    display: none;
-  }
-
   .btn-label {
     display: none;
   }
@@ -1000,6 +951,19 @@ body {
     min-width: 0;
     min-height: 0;
     overflow: hidden;
+    --nb-mobile-panel-h: 2.85rem;
+
+    &.mobile-property-panel-open .canvas-stage {
+      align-items: flex-start;
+      justify-content: safe center;
+      padding-top: 0.5rem;
+    }
+
+    .canvas-stage {
+      min-height: 0;
+      padding: 0.5rem 0.5rem calc(var(--nb-mobile-panel-h) + 0.5rem);
+      transition: padding-bottom 0.2s ease;
+    }
   }
 
   .designer-topbar {
@@ -1008,15 +972,7 @@ body {
     padding: 0.3rem 0.45rem;
     gap: 0.3rem;
     flex-wrap: nowrap;
-    overflow-x: auto;
-    overflow-y: hidden;
-    overscroll-behavior-x: contain;
-    touch-action: pan-x;
-    scrollbar-width: none;
-  }
-
-  .designer-topbar::-webkit-scrollbar {
-    display: none;
+    @include nb-scroll-row;
   }
 
   .designer-topbar .toolbar-cluster {
@@ -1036,19 +992,11 @@ body {
     align-items: center;
     min-width: 0;
     max-width: 100%;
-    overflow-x: auto;
-    overflow-y: hidden;
-    overscroll-behavior-x: contain;
-    touch-action: pan-x;
-    scrollbar-width: none;
+    @include nb-scroll-row;
     border-right: 0;
     border-bottom: 1px solid var(--nb-border);
     padding: 0.2rem 0.35rem;
     gap: 0.1rem;
-  }
-
-  .tools-rail::-webkit-scrollbar {
-    display: none;
   }
 
   .tools-group-label {
@@ -1117,18 +1065,7 @@ body {
 
   .property-panel-tab,
   .property-panel-toggle {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.3rem;
-    border: 0;
-    background: transparent;
-    color: var(--nb-muted);
-    font-size: 0.75rem;
-    font-weight: 650;
-    min-height: 2.25rem;
-    padding: 0.25rem 0.55rem;
-    border-radius: 999px;
+    @include nb-panel-tab-button;
   }
 
   .property-panel-tab.active {
@@ -1207,11 +1144,6 @@ body {
     padding: 0.75rem 0.5rem;
   }
 
-  .canvas-stage {
-    min-height: 0;
-    padding: 0.5rem 0.5rem 3.6rem;
-  }
-
   .canvas-wrapper {
     margin: auto;
   }
@@ -1237,7 +1169,7 @@ body {
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: $nb-break-compact) {
   .app-header {
     flex-wrap: nowrap;
   }
