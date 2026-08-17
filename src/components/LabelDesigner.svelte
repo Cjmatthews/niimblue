@@ -63,7 +63,6 @@
   let propertyPanelEl = $state<HTMLElement | undefined>(undefined);
 
   const MOBILE_BREAK = 960;
-  const MOBILE_STAGE_PADDING = 8;
 
   const undo = new UndoRedo();
 
@@ -561,38 +560,26 @@
     }
   });
 
-  const syncMobileCanvasLayout = () => {
-    if (!designerEl || !propertyPanelEl || !fabricCanvas) return;
+  /** Update canvas bottom inset for the mobile sheet without changing zoom. */
+  const syncMobilePanelInset = () => {
+    if (!designerEl || !propertyPanelEl) return;
     if (windowWidth === 0 || windowWidth > MOBILE_BREAK) return;
 
     const panelH = propertyPanelEl.getBoundingClientRect().height;
     designerEl.style.setProperty("--nb-mobile-panel-h", `${panelH}px`);
-
-    const bottomInset = panelH + MOBILE_STAGE_PADDING;
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        fabricCanvas?.fitToViewport({
-          top: MOBILE_STAGE_PADDING,
-          right: MOBILE_STAGE_PADDING,
-          bottom: bottomInset,
-          left: MOBILE_STAGE_PADDING,
-        });
-      });
-    });
   };
 
   $effect(() => {
     if (windowWidth === 0 || windowWidth > MOBILE_BREAK) return;
-    if (!fabricCanvas || !designerEl || !propertyPanelEl) return;
+    if (!designerEl || !propertyPanelEl) return;
     mobilePropertyPanelOpen;
     mobilePropertyPanelTab;
-    selectedCount;
-    syncMobileCanvasLayout();
+    syncMobilePanelInset();
   });
 
   $effect(() => {
     if (!propertyPanelEl) return;
-    const observer = new ResizeObserver(() => syncMobileCanvasLayout());
+    const observer = new ResizeObserver(() => syncMobilePanelInset());
     observer.observe(propertyPanelEl);
     return () => observer.disconnect();
   });
