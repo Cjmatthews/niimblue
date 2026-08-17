@@ -20,6 +20,19 @@ const findMenu = (toggle: HTMLElement): HTMLElement | null => {
   return wrap.querySelector(":scope > .dropdown-menu");
 };
 
+const clearPopperPlacement = (menu: HTMLElement) => {
+  menu.style.removeProperty("position");
+  menu.style.removeProperty("inset");
+  menu.style.removeProperty("top");
+  menu.style.removeProperty("left");
+  menu.style.removeProperty("right");
+  menu.style.removeProperty("bottom");
+  menu.style.removeProperty("transform");
+  menu.style.removeProperty("margin");
+  menu.style.removeProperty("z-index");
+  menu.removeAttribute("data-popper-placement");
+};
+
 const onShow = (e: Event) => {
   const toggle = e.target;
   if (!(toggle instanceof HTMLElement)) return;
@@ -57,19 +70,19 @@ const onShow = (e: Event) => {
       closeBtn,
     });
 
+    document.body.classList.add("nb-dropdown-sheet-open");
     document.body.append(backdrop, menu);
     menu.classList.add("dropdown-menu-sheet");
     // Drop Popper placement so the sheet CSS owns position (avoids side-flash).
-    menu.style.removeProperty("position");
-    menu.style.removeProperty("inset");
-    menu.style.removeProperty("top");
-    menu.style.removeProperty("left");
-    menu.style.removeProperty("right");
-    menu.style.removeProperty("bottom");
-    menu.style.removeProperty("transform");
-    menu.style.removeProperty("margin");
-    menu.removeAttribute("data-popper-placement");
+    clearPopperPlacement(menu);
     menu.prepend(closeBtn);
+    // Popper may re-apply placement after show — keep the sheet on top.
+    requestAnimationFrame(() => {
+      clearPopperPlacement(menu);
+      if (menu.parentElement !== document.body) {
+        document.body.append(backdrop, menu);
+      }
+    });
     return;
   }
 
@@ -98,6 +111,7 @@ const onHidden = (e: Event) => {
   state.menu.classList.remove("dropdown-menu-sheet", "dropdown-menu-rail-portal");
   state.home.insertBefore(state.menu, state.nextSibling);
   state.backdrop?.remove();
+  document.body.classList.remove("nb-dropdown-sheet-open");
 };
 
 const initRailDropdowns = () => {

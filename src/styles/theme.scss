@@ -106,9 +106,19 @@ body {
   background: var(--nb-surface);
   color: var(--nb-muted);
   font-size: 0.75rem;
+  position: relative;
+  z-index: 1;
 
   .footer-meta {
     min-width: 0;
+  }
+}
+
+body.nb-dropdown-sheet-open {
+  .app-footer,
+  .app-header,
+  .property-panel {
+    z-index: 0;
   }
 }
 
@@ -237,7 +247,7 @@ body {
   position: fixed;
   inset: 0;
   background: rgba(4, 8, 16, 0.62);
-  z-index: 1080;
+  z-index: 2000;
 }
 
 .dropdown-menu.dropdown-menu-rail-portal {
@@ -259,7 +269,7 @@ body {
   max-width: none !important;
   max-height: min(85dvh, 42rem) !important;
   overflow: hidden !important;
-  z-index: 1090 !important;
+  z-index: 2010 !important;
   padding: 0 !important;
   border-radius: 16px;
   box-shadow: var(--nb-shadow);
