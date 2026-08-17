@@ -68,7 +68,7 @@
     }));
   });
 
-  const selectLayer = (obj: fabric.FabricObject) => {
+  const selectObject = (obj: fabric.FabricObject) => {
     if (!canvas) return;
     canvas.setActiveObject(obj);
     canvas.requestRenderAll();
@@ -86,19 +86,19 @@
 
 <div class="d-flex flex-column gap-1">
   {#if rows.length === 0}
-    <div class="text-secondary small">{$tr("ui.layers.empty")}</div>
+    <div class="text-secondary small">{$tr("ui.objects.empty")}</div>
   {:else}
     {#each rows as row (`${row.id}:${row.label}:${row.hidden}`)}
-      <div class="layer-item {selectedObject === row.obj ? 'active' : ''} {row.hidden ? 'is-hidden' : ''}">
-        <button class="layer-select" type="button" onclick={() => selectLayer(row.obj)}>
+      <div class="object-item {selectedObject === row.obj ? 'active' : ''} {row.hidden ? 'is-hidden' : ''}">
+        <button class="object-select" type="button" onclick={() => selectObject(row.obj)}>
           <MdIcon icon={iconFor(row.obj)} />
           <span class="text-truncate">{row.label}</span>
         </button>
-        <span class="layer-index text-secondary small">{row.index}</span>
+        <span class="object-index text-secondary small">{row.index}</span>
         <button
-          class="layer-vis {row.hidden ? 'off' : 'on'}"
+          class="object-vis {row.hidden ? 'off' : 'on'}"
           type="button"
-          title={row.hidden ? $tr("ui.layers.show") : $tr("ui.layers.hide")}
+          title={row.hidden ? $tr("ui.objects.show") : $tr("ui.objects.hide")}
           onclick={(e) => toggleVisible(row.obj, e)}>
           <MdIcon icon={row.hidden ? "visibility_off" : "visibility"} />
         </button>
@@ -108,21 +108,21 @@
 </div>
 
 <style>
-  .layer-item.is-hidden .layer-select,
-  .layer-item.is-hidden .layer-index {
+  .object-item.is-hidden .object-select,
+  .object-item.is-hidden .object-index {
     color: var(--nb-muted);
     opacity: 0.4;
   }
 
-  .layer-item.is-hidden .layer-select :global(.mdi) {
+  .object-item.is-hidden .object-select :global(.mdi) {
     color: var(--nb-muted);
   }
 
-  .layer-vis.on :global(.mdi) {
+  .object-vis.on :global(.mdi) {
     color: var(--nb-muted);
   }
 
-  .layer-vis.off :global(.mdi) {
+  .object-vis.off :global(.mdi) {
     color: var(--nb-muted);
     opacity: 0.35;
   }

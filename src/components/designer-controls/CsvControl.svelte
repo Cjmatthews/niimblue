@@ -110,8 +110,8 @@
   }
 
   .csv-enable-bar.on {
-    background: color-mix(in srgb, var(--nb-accent) 22%, var(--nb-surface-2));
-    border-color: color-mix(in srgb, var(--nb-accent) 50%, transparent);
+    background: var(--nb-accent-strong);
+    border-color: var(--nb-accent-border-strong);
   }
 
   .csv-enable-bar :global(.form-check-input) {

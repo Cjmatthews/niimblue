@@ -38,7 +38,7 @@
   import { CustomCanvas } from "$/fabric-object/custom_canvas";
   import VectorParamsControls from "$/components/designer-controls/VectorParamsControls.svelte";
   import { CanvasUtils } from "$/utils/canvas_utils";
-  import LayersPanel from "$/components/designer-controls/LayersPanel.svelte";
+  import ObjectPanel from "$/components/designer-controls/ObjectPanel.svelte";
   import ShortcutsHelp from "$/components/ShortcutsHelp.svelte";
 
   let htmlCanvas: HTMLCanvasElement;
@@ -57,8 +57,8 @@
   let shortcutsShow = $state<boolean>(false);
   let dirty = $state<boolean>(false);
   let designerReady = false;
-  let mobileInspectorOpen = $state(false);
-  let mobileInspectorTab = $state<"props" | "layers">("props");
+  let mobilePropertyPanelOpen = $state(false);
+  let mobilePropertyPanelTab = $state<"properties" | "objects">("properties");
 
   const undo = new UndoRedo();
 
@@ -267,7 +267,7 @@
     editRevision++;
   };
 
-  const onLayerVisibilityChange = () => {
+  const onObjectVisibilityChange = () => {
     undo.push(fabricCanvas!, labelProps);
     fabricCanvas!.requestRenderAll();
     editRevision++;
@@ -550,19 +550,19 @@
   $effect(() => {
     if (windowWidth === 0 || windowWidth > 960) return;
     if (selectedCount > 0) {
-      mobileInspectorTab = "props";
+      mobilePropertyPanelTab = "properties";
     } else {
-      mobileInspectorOpen = false;
+      mobilePropertyPanelOpen = false;
     }
   });
 
-  const openMobileInspector = (tab: "props" | "layers") => {
-    if (mobileInspectorOpen && mobileInspectorTab === tab) {
-      mobileInspectorOpen = false;
+  const openMobilePropertyPanel = (tab: "properties" | "objects") => {
+    if (mobilePropertyPanelOpen && mobilePropertyPanelTab === tab) {
+      mobilePropertyPanelOpen = false;
       return;
     }
-    mobileInspectorTab = tab;
-    mobileInspectorOpen = true;
+    mobilePropertyPanelTab = tab;
+    mobilePropertyPanelOpen = true;
   };
 </script>
 
@@ -570,10 +570,10 @@
 
 <div
   class="designer"
-  class:mobile-inspector-open={mobileInspectorOpen}
+  class:mobile-property-panel-open={mobilePropertyPanelOpen}
   class:mobile-has-selection={selectedCount > 0}
-  class:mobile-tab-props={mobileInspectorTab === "props"}
-  class:mobile-tab-layers={mobileInspectorTab === "layers"}>
+  class:mobile-tab-properties={mobilePropertyPanelTab === "properties"}
+  class:mobile-tab-objects={mobilePropertyPanelTab === "objects"}>
   <div class="designer-topbar">
     <div class="toolbar-cluster">
       <LabelPropsEditor {labelProps} onChange={onUpdateLabelProps} />
@@ -665,51 +665,51 @@
     </div>
   </div>
 
-  <aside class="inspector">
-    <div class="inspector-handle">
+  <aside class="property-panel">
+    <div class="property-panel-handle">
       <button
         type="button"
-        class="inspector-tab"
-        class:active={mobileInspectorOpen && mobileInspectorTab === "props"}
-        onclick={() => openMobileInspector("props")}>
+        class="property-panel-tab"
+        class:active={mobilePropertyPanelOpen && mobilePropertyPanelTab === "properties"}
+        onclick={() => openMobilePropertyPanel("properties")}>
         <MdIcon icon="tune" />
-        {$tr("ui.inspector")}
+        {$tr("ui.properties")}
         {#if selectedCount > 0}
-          <span class="inspector-count">{selectedCount}</span>
+          <span class="property-panel-count">{selectedCount}</span>
         {/if}
       </button>
       <button
         type="button"
-        class="inspector-tab"
-        class:active={mobileInspectorOpen && mobileInspectorTab === "layers"}
-        onclick={() => openMobileInspector("layers")}>
+        class="property-panel-tab"
+        class:active={mobilePropertyPanelOpen && mobilePropertyPanelTab === "objects"}
+        onclick={() => openMobilePropertyPanel("objects")}>
         <MdIcon icon="layers" />
-        {$tr("ui.layers")}
+        {$tr("ui.objects")}
       </button>
-      <div class="inspector-quick-actions">
+      <div class="property-panel-quick-actions">
         {#if selectedCount > 0}
-          <button type="button" class="inspector-quick" onclick={deleteSelected} title={$tr("editor.delete")}>
+          <button type="button" class="property-panel-quick" onclick={deleteSelected} title={$tr("editor.delete")}>
             <MdIcon icon="delete" />
           </button>
-          <button type="button" class="inspector-quick" onclick={cloneSelected} title={$tr("editor.clone")}>
+          <button type="button" class="property-panel-quick" onclick={cloneSelected} title={$tr("editor.clone")}>
             <MdIcon icon="content_copy" />
           </button>
         {/if}
         <button
           type="button"
-          class="inspector-toggle"
-          onclick={() => (mobileInspectorOpen = !mobileInspectorOpen)}
-          aria-expanded={mobileInspectorOpen}>
-          <MdIcon icon={mobileInspectorOpen ? "expand_more" : "expand_less"} />
+          class="property-panel-toggle"
+          onclick={() => (mobilePropertyPanelOpen = !mobilePropertyPanelOpen)}
+          aria-expanded={mobilePropertyPanelOpen}>
+          <MdIcon icon={mobilePropertyPanelOpen ? "expand_more" : "expand_less"} />
         </button>
       </div>
     </div>
 
-    <div class="inspector-body">
-    <div class="inspector-section inspector-props">
-      <h3>{$tr("ui.inspector")}</h3>
+    <div class="property-panel-body">
+    <div class="property-panel-section property-panel-properties">
+      <h3>{$tr("ui.properties")}</h3>
       {#if selectedCount > 0}
-        <div class="inspector-controls">
+        <div class="property-panel-controls">
           <button class="btn btn-sm btn-danger" onclick={deleteSelected} title={$tr("editor.delete")}>
             <MdIcon icon="delete" />
             {$tr("editor.delete")}
@@ -748,16 +748,16 @@
           {/if}
         </div>
       {:else}
-        <div class="inspector-empty">
+        <div class="property-panel-empty">
           <MdIcon icon="touch_app" />
-          <div>{$tr("ui.inspector.empty")}</div>
+          <div>{$tr("ui.properties.empty")}</div>
         </div>
       {/if}
     </div>
 
-    <div class="inspector-section inspector-layers">
-      <h3>{$tr("ui.layers")}</h3>
-      <LayersPanel canvas={fabricCanvas} {selectedObject} {editRevision} onVisibilityChange={onLayerVisibilityChange} />
+    <div class="property-panel-section property-panel-objects">
+      <h3>{$tr("ui.objects")}</h3>
+      <ObjectPanel canvas={fabricCanvas} {selectedObject} {editRevision} onVisibilityChange={onObjectVisibilityChange} />
     </div>
     </div>
   </aside>
