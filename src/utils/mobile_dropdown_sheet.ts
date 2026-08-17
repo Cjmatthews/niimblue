@@ -59,6 +59,16 @@ const onShow = (e: Event) => {
 
     document.body.append(backdrop, menu);
     menu.classList.add("dropdown-menu-sheet");
+    // Drop Popper placement so the sheet CSS owns position (avoids side-flash).
+    menu.style.removeProperty("position");
+    menu.style.removeProperty("inset");
+    menu.style.removeProperty("top");
+    menu.style.removeProperty("left");
+    menu.style.removeProperty("right");
+    menu.style.removeProperty("bottom");
+    menu.style.removeProperty("transform");
+    menu.style.removeProperty("margin");
+    menu.removeAttribute("data-popper-placement");
     menu.prepend(closeBtn);
     return;
   }
