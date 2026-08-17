@@ -2,7 +2,7 @@ import * as fabric from "fabric";
 import { ArUcoMarker } from "$/fabric-object/aruco";
 import { Barcode } from "$/fabric-object/barcode";
 import { QRCode } from "$/fabric-object/qrcode";
-import { packImageToGfa, rxToGbRounding } from "@niimblue/zpl";
+import { packImageToGfa, rxToGbRounding } from "zpl-parser";
 
 export type ZplExportResult = {
   zpl: string;
