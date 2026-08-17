@@ -1,4 +1,4 @@
-import { gbRoundingToRx } from "$/utils/zpl_graphics";
+import { gbRoundingToRx } from "./graphics.js";
 
 export type ZplBarcodeEncoding = "EAN13" | "CODE128B";
 export type ZplQrEcl = "L" | "M" | "Q" | "H";

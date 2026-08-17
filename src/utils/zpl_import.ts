@@ -3,11 +3,10 @@ import { OBJECT_DEFAULTS, OBJECT_DEFAULTS_TEXT, OBJECT_DEFAULTS_VECTOR } from "$
 import { Barcode } from "$/fabric-object/barcode";
 import { QRCode } from "$/fabric-object/qrcode";
 import { TextboxExt } from "$/fabric-object/textbox-ext";
-import { decodeGfaArgs, type RgbaImage } from "$/utils/zpl_graphics";
-import type { ZplObjectSpec } from "$/utils/zpl_parse";
+import { decodeGfaArgs, type RgbaImage, type ZplObjectSpec } from "@niimblue/zpl";
 
-export type { ZplFidelity, ZplObjectSpec, ZplParseResult, ZplTone } from "$/utils/zpl_parse";
-export { parseZpl } from "$/utils/zpl_parse";
+export type { ZplFidelity, ZplObjectSpec, ZplParseResult, ZplTone } from "@niimblue/zpl";
+export { parseZpl } from "@niimblue/zpl";
 
 const rgbaToDataUrl = (rgba: RgbaImage): string => {
   const canvas = document.createElement("canvas");

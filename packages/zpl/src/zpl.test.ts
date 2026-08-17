@@ -8,8 +8,8 @@ import {
   parseGfaArgs,
   rxToGbRounding,
   unpackGfaBytesToRgba,
-} from "$/utils/zpl_graphics";
-import { parseZpl } from "$/utils/zpl_parse";
+} from "./graphics.js";
+import { parseZpl } from "./parse.js";
 
 describe("ZPL box rounding", () => {
   it("maps index 0 to no corner radius", () => {
